@@ -19,7 +19,7 @@ export default async function SettingsPage() {
     <div className="max-w-xl">
       <h1 className="font-display text-3xl">Ajustes</h1>
 
-      <div className="mt-8 rounded-2xl border border-ink/8 bg-white p-6 shadow-card">
+      <div className="mt-8 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
         <p className="font-body text-xs uppercase tracking-wide text-ink/40">Cuenta</p>
         <p className="mt-1 font-body text-sm">{profile?.email}</p>
 

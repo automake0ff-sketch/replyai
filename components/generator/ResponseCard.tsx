@@ -27,7 +27,7 @@ export default function ResponseCard({
   }
 
   return (
-    <div className="rounded-2xl border border-ink/8 bg-white p-6 shadow-card">
+    <div className="rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
       <div className="flex items-center justify-between">
         <span className={`rounded-full px-3 py-1 font-body text-xs font-semibold ${tone.color}`}>
           {tone.label}

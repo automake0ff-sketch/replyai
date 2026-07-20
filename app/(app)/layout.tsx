@@ -17,7 +17,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen bg-paper">
-      <aside className="flex w-60 flex-col justify-between border-r border-ink/8 px-5 py-6">
+      <aside className="flex w-60 flex-col justify-between border-r border-ink/10 px-5 py-6">
         <div>
           <Link href="/" className="font-display text-xl italic">ReplyAI</Link>
           <nav className="mt-10 flex flex-col gap-1">

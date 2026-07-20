@@ -29,7 +29,7 @@ export default async function DashboardPage() {
       </p>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-3">
-        <div className="rounded-2xl border border-ink/8 bg-white p-6 shadow-card">
+        <div className="rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
           <p className="font-body text-xs uppercase tracking-wide text-ink/40">
             Créditos disponibles
           </p>
@@ -37,13 +37,13 @@ export default async function DashboardPage() {
             {isUnlimited ? "∞" : profile?.credits_remaining ?? 0}
           </p>
         </div>
-        <div className="rounded-2xl border border-ink/8 bg-white p-6 shadow-card">
+        <div className="rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
           <p className="font-body text-xs uppercase tracking-wide text-ink/40">
             Respuestas generadas
           </p>
           <p className="mt-2 font-display text-3xl">{generationsCount ?? 0}</p>
         </div>
-        <div className="rounded-2xl border border-ink/8 bg-white p-6 shadow-card">
+        <div className="rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
           <p className="font-body text-xs uppercase tracking-wide text-ink/40">
             Plan actual
           </p>

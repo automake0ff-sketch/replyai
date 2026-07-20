@@ -35,7 +35,7 @@ export default function LandingPage() {
           <br />
           <span className="italic text-clay">en 10 segundos</span>, no en 10 minutos.
         </h1>
-        <p className="mx-auto mt-6 max-w-xl font-body text-lg text-ink/65">
+        <p className="mx-auto mt-6 max-w-xl font-body text-lg text-ink/70">
           ReplyAI genera respuestas profesionales, cercanas y humanas a cada
           reseña de tu negocio. Sin plantillas robóticas. Sin quedarte en
           blanco delante de una reseña negativa.
@@ -70,7 +70,7 @@ export default function LandingPage() {
               text: "Respuestas que integran tu negocio y tu zona de forma natural, sin sonar forzadas.",
             },
           ].map((item) => (
-            <div key={item.title} className="rounded-2xl border border-ink/8 bg-white p-7 shadow-card">
+            <div key={item.title} className="rounded-2xl border border-ink/10 bg-white p-7 shadow-card">
               <h3 className="font-display text-2xl">{item.title}</h3>
               <p className="mt-2 font-body text-sm text-ink/60">{item.text}</p>
             </div>
@@ -103,7 +103,7 @@ export default function LandingPage() {
           Empieza gratis. Sube de plan cuando lo necesites.
         </p>
         <div className="mt-12 grid gap-6 sm:grid-cols-2">
-          <div className="rounded-2xl border border-ink/8 bg-white p-8 shadow-card">
+          <div className="rounded-2xl border border-ink/10 bg-white p-8 shadow-card">
             <h3 className="font-display text-2xl">Free</h3>
             <p className="mt-2 font-display text-4xl">0€</p>
             <p className="font-body text-sm text-ink/50">20 respuestas al mes</p>
@@ -145,7 +145,7 @@ export default function LandingPage() {
         </Link>
       </section>
 
-      <footer className="border-t border-ink/8 py-8 text-center font-body text-xs text-ink/40">
+      <footer className="border-t border-ink/10 py-8 text-center font-body text-xs text-ink/40">
         © {new Date().getFullYear()} ReplyAI
       </footer>
     </main>
