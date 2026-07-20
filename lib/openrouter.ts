@@ -20,7 +20,7 @@ export async function generateResponses(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "anthropic/claude-3.5-haiku",
+      model: "anthropic/claude-haiku-4.5",
       temperature: 0.8,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
