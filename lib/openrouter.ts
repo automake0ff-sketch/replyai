@@ -22,6 +22,7 @@ export async function generateResponses(
     body: JSON.stringify({
       model: "anthropic/claude-haiku-4.5",
       temperature: 0.8,
+      max_tokens: 1200,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: buildUserPrompt(businessType, reviewText) },
