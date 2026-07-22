@@ -37,7 +37,7 @@ npm run dev
 4. Copiar el nuevo `STRIPE_WEBHOOK_SECRET` de producción a Vercel
 
 ## Reset mensual de créditos Free
-Configura un Vercel Cron (`vercel.json`) que llame a una route protegida que ejecute `select reset_free_credits();` el día 1 de cada mes. No incluido en este MVP — ver blueprint, sección "qué añadir después".
+Ya incluido: `vercel.json` configura un Vercel Cron que llama a `/api/cron/reset-credits` el día 1 de cada mes a las 00:00 UTC. Solo necesitas generar un valor para `CRON_SECRET` en tus env vars (ej. `openssl rand -hex 32`) — Vercel lo añade automáticamente como cabecera al llamar la ruta.
 
 ## Estructura
 Ver `ReplyAI-MVP-Blueprint.md` para arquitectura completa, prompts, checklist de lanzamiento y roadmap de 30 días.
