@@ -20,7 +20,12 @@ export async function generateResponses(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "anthropic/claude-haiku-4.5",
+      // Router gratuito de OpenRouter: elige automáticamente entre los
+      // modelos :free disponibles ahora mismo (la lista cambia con
+      // frecuencia). Límite: 50 peticiones/día sin saldo, sube a 1000/día
+      // con solo $10 de crédito. Para producción con volumen real, cambia
+      // esto por un modelo de pago fijo (ej. "anthropic/claude-haiku-4.5").
+      model: "openrouter/free",
       temperature: 0.8,
       max_tokens: 1200,
       messages: [
@@ -41,9 +46,20 @@ export async function generateResponses(
 
   if (!raw) throw new Error("Respuesta vacía del modelo");
 
-  try {
-    return JSON.parse(raw) as GeneratedResponses;
-  } catch {
-    throw new Error("El modelo no devolvió un JSON válido");
+  // Los modelos gratuitos a veces envuelven el JSON en texto o code fences
+  // (```json ... ```) aunque se pida response_format json_object. Se
+  // extrae el primer bloque {...} válido antes de fallar.
+  function parseJsonLoose(text: string): GeneratedResponses {
+    try {
+      return JSON.parse(text) as GeneratedResponses;
+    } catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) {
+        return JSON.parse(match[0]) as GeneratedResponses;
+      }
+      throw new Error("El modelo no devolvió un JSON válido");
+    }
   }
+
+  return parseJsonLoose(raw);
 }
