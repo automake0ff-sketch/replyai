@@ -22,39 +22,58 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Descuento atómico de crédito (o paso libre si el plan es ilimitado)
-  const { data: canGenerate, error: creditError } = await supabase.rpc(
-    "consume_credit",
-    { p_user_id: user.id }
-  );
-
-  if (creditError) {
-    return NextResponse.json({ error: creditError.message }, { status: 500 });
+  if (reviewText.length > 2000) {
+    return NextResponse.json(
+      { error: "La reseña es demasiado larga (máximo 2000 caracteres)" },
+      { status: 400 }
+    );
   }
 
-  if (!canGenerate) {
+  // Comprobación previa (solo lectura): evita pagar una llamada a la IA
+  // si el usuario ya no tiene créditos.
+  const { data: precheck } = await supabase
+    .from("profiles")
+    .select("plan, credits_remaining")
+    .eq("id", user.id)
+    .single();
+
+  const isUnlimited = precheck?.plan === "pro" || precheck?.plan === "agency";
+
+  if (!isUnlimited && (precheck?.credits_remaining ?? 0) <= 0) {
     return NextResponse.json(
       { error: "Sin créditos disponibles. Actualiza tu plan para continuar." },
       { status: 402 }
     );
   }
 
+  // Genera: si el modelo falla, el usuario no pierde un crédito por nada.
+  let responses;
   try {
-    const responses = await generateResponses(businessType, reviewText);
-
-    await supabase.from("generations").insert({
-      user_id: user.id,
-      business_type: businessType,
-      review_text: reviewText,
-      review_sentiment: responses.sentiment,
-      responses,
-    });
-
-    return NextResponse.json({ responses });
+    responses = await generateResponses(businessType, reviewText);
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Error generando respuestas" },
       { status: 500 }
     );
   }
+
+  // Descuento atómico de crédito. Protege contra condiciones de carrera
+  // entre el precheck y este punto (doble clic rápido, dos pestañas).
+  const { error: creditError } = await supabase.rpc("consume_credit", {
+    p_user_id: user.id,
+  });
+
+  if (creditError) {
+    return NextResponse.json({ error: creditError.message }, { status: 500 });
+  }
+
+  await supabase.from("generations").insert({
+    user_id: user.id,
+    business_type: businessType,
+    review_text: reviewText,
+    review_sentiment: responses.sentiment,
+    responses,
+  });
+
+  return NextResponse.json({ responses });
 }

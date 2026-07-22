@@ -86,11 +86,15 @@ export default function GeneratorPage() {
           <textarea
             required
             rows={5}
+            maxLength={2000}
             placeholder="Pega aquí el texto de la reseña de Google..."
             className="input-field resize-none"
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
           />
+          <p className="mt-1 text-right font-body text-xs text-ink/40">
+            {reviewText.length}/2000
+          </p>
         </div>
 
         {error && <p className="font-body text-sm text-red-600">{error}</p>}
