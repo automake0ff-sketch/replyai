@@ -16,9 +16,17 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: "ReplyAI — Respuestas a reseñas de Google en segundos",
   description:
     "Genera respuestas profesionales a tus reseñas de Google con IA. Protege tu reputación, ahorra tiempo, mejora tu SEO local.",
+  openGraph: {
+    title: "ReplyAI — Respuestas a reseñas de Google en segundos",
+    description:
+      "Genera respuestas profesionales a tus reseñas de Google con IA.",
+    locale: "es_ES",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
