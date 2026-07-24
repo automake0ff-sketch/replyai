@@ -49,7 +49,7 @@ function parseTaggedDemo(text: string): { reply: string } {
   return { reply };
 }
 
-async function callOpenRouter(userPrompt: string, maxTokens: number, model = "openrouter/free") {
+async function callOpenRouter(userPrompt: string, maxTokens: number, model = FREE_MODEL) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -57,18 +57,6 @@ async function callOpenRouter(userPrompt: string, maxTokens: number, model = "op
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      // Router gratuito de OpenRouter: elige automáticamente entre los
-      // modelos :free disponibles ahora mismo (la lista cambia con
-      // frecuencia). Límite: 50 peticiones/día sin saldo, sube a 1000/día
-      // con solo $10 de crédito. Para producción con volumen real, cambia
-      // esto por un modelo de pago fijo (ej. "anthropic/claude-haiku-4.5").
-      //
-      // Nota: NO se usa response_format:"json_object" porque no todos los
-      // modelos gratuitos lo soportan — algunos devuelven contenido vacío
-      // en vez de error cuando reciben un parámetro que no manejan. Por eso
-      // el formato de salida se pide como etiquetas [TAG]...[/TAG] en el
-      // prompt (ver parseTaggedResponses/parseTaggedDemo más abajo), mucho
-      // más tolerante que JSON para modelos gratuitos débiles.
       model,
       temperature: 0.8,
       max_tokens: maxTokens,
@@ -108,20 +96,31 @@ async function callOpenRouter(userPrompt: string, maxTokens: number, model = "op
   return raw as string;
 }
 
-// Modelo fijo para el generador real (usuarios registrados). El router
-// gratuito "openrouter/free" puede asignar CUALQUIER modelo etiquetado
-// como chat, incluidos clasificadores/filtros de moderación que no sirven
-// para generar texto (ej. nvidia/nemotron-3.5-content-safety). Para una
-// función central del producto de pago, eso es demasiado inestable —
-// se usa un modelo fijo y barato en su lugar. Requiere saldo real en
-// OpenRouter (unos 5-10€ dan para miles de generaciones).
-const PRIMARY_MODEL = "anthropic/claude-haiku-4.5";
+// Modelo gratuito FIJO (no el router "openrouter/free"), usado tanto por
+// el generador real como por la demo pública mientras no haya saldo en
+// OpenRouter. El router automático "openrouter/free" puede asignar
+// CUALQUIER modelo etiquetado como chat, incluidos clasificadores/filtros
+// de moderación que no sirven para generar texto (nos pasó con
+// nvidia/nemotron-3.5-content-safety). Fijar un modelo concreto evita
+// esa lotería.
+//
+// google/gemma-4-31b-it:free — Google DeepMind, instruction-tuned,
+// buen soporte multilingüe, calidad comparable a GPT-4o-mini/Claude Haiku
+// en tareas de instrucción según benchmarks públicos.
+//
+// Límite compartido de la cuenta: 50 peticiones/día sin saldo (sube a
+// 1000/día con solo 10€ de crédito, que nunca caducan). Los modelos
+// gratuitos de OpenRouter rotan con el tiempo — si este deja de estar
+// disponible, revisa openrouter.ai/models (filtro "Free") y actualiza
+// esta constante. Cuando haya tráfico real de pago, cambia esto por un
+// modelo de pago fijo (ej. "anthropic/claude-haiku-4.5") para fiabilidad.
+const FREE_MODEL = "google/gemma-4-31b-it:free";
 
 export async function generateResponses(
   businessType: string,
   reviewText: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200, PRIMARY_MODEL);
+  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200);
   try {
     return parseTaggedResponses(raw);
   } catch (err) {
@@ -131,9 +130,8 @@ export async function generateResponses(
 }
 
 // Versión reducida para la demo pública (sin login): una sola respuesta,
-// menos tokens. Sí usa el router gratuito: es tráfico anónimo de la
-// landing, sin coste, y un fallo ocasional aquí no afecta al producto
-// de pago — el usuario solo pierde una prueba gratuita, no dinero.
+// menos tokens. Comparte el mismo modelo gratuito fijo y, por tanto, el
+// mismo límite diario de la cuenta — la demo cuenta contra esas 50/día.
 export async function generateDemoResponse(
   businessType: string,
   reviewText: string
