@@ -51,7 +51,7 @@ ${reviewText}
 """
 
 Genera UNA sola respuesta de tono profesional pero cercano, adaptada al tipo de negocio.
-Si la reseña es negativa o neutra, muestra empatía real, sin admitir culpa legal, sin tono defensivo, y ofrece un canal privado para resolverlo.
+Si la reseña es negativa o neutra, muestra empatía real, reconoce el problema sin admitir culpa legal ni negar la experiencia del cliente, evita cualquier tono defensivo, ofrece un canal privado para resolverlo (ej. "escríbenos directamente"), y cierra transmitiendo que el negocio mejora con este feedback. Nunca uses la palabra "lamentamos" más de una vez ni frases hechas como "lamentamos las molestias".
 Si es positiva, agradece de forma específica e invita a volver.
 
 Responde EXCLUSIVAMENTE con este formato exacto, sin explicaciones antes ni después, sin markdown:
