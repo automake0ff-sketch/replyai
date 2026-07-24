@@ -49,7 +49,7 @@ function parseTaggedDemo(text: string): { reply: string } {
   return { reply };
 }
 
-async function callOpenRouter(userPrompt: string, maxTokens: number, model = FREE_MODEL) {
+async function callOpenRouter(userPrompt: string, maxTokens: number, model: string) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -96,31 +96,45 @@ async function callOpenRouter(userPrompt: string, maxTokens: number, model = FRE
   return raw as string;
 }
 
-// Modelo gratuito FIJO (no el router "openrouter/free"), usado tanto por
-// el generador real como por la demo pública mientras no haya saldo en
-// OpenRouter. El router automático "openrouter/free" puede asignar
-// CUALQUIER modelo etiquetado como chat, incluidos clasificadores/filtros
-// de moderación que no sirven para generar texto (nos pasó con
-// nvidia/nemotron-3.5-content-safety). Fijar un modelo concreto evita
-// esa lotería.
+// Cadena de modelos gratuitos FIJOS (no el router "openrouter/free"), de
+// proveedores distintos a propósito: si Google AI Studio está saturado
+// (429 upstream, algo normal en horas punta con modelos gratuitos
+// compartidos por miles de usuarios), se prueba automáticamente con Meta
+// vía un proveedor distinto, sin que el usuario vea el fallo.
 //
-// google/gemma-4-31b-it:free — Google DeepMind, instruction-tuned,
-// buen soporte multilingüe, calidad comparable a GPT-4o-mini/Claude Haiku
-// en tareas de instrucción según benchmarks públicos.
+// - google/gemma-4-31b-it:free — Google DeepMind, buen soporte multilingüe.
+// - meta-llama/llama-3.3-70b-instruct:free — el más longevo y estable del
+//   catálogo gratuito de OpenRouter, buen soporte de español.
 //
 // Límite compartido de la cuenta: 50 peticiones/día sin saldo (sube a
 // 1000/día con solo 10€ de crédito, que nunca caducan). Los modelos
-// gratuitos de OpenRouter rotan con el tiempo — si este deja de estar
-// disponible, revisa openrouter.ai/models (filtro "Free") y actualiza
-// esta constante. Cuando haya tráfico real de pago, cambia esto por un
-// modelo de pago fijo (ej. "anthropic/claude-haiku-4.5") para fiabilidad.
-const FREE_MODEL = "google/gemma-4-31b-it:free";
+// gratuitos rotan con el tiempo — si ambos dejan de estar disponibles,
+// revisa openrouter.ai/models (filtro "Free") y actualiza esta lista.
+// Cuando haya tráfico real de pago, cambia esto por un modelo de pago
+// fijo (ej. "anthropic/claude-haiku-4.5") para máxima fiabilidad.
+const FREE_MODEL_CHAIN = [
+  "google/gemma-4-31b-it:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+];
+
+async function callOpenRouterWithFallback(userPrompt: string, maxTokens: number) {
+  let lastError: unknown;
+  for (const model of FREE_MODEL_CHAIN) {
+    try {
+      return await callOpenRouter(userPrompt, maxTokens, model);
+    } catch (err) {
+      console.error(`Fallo con ${model}, probando siguiente modelo de la cadena:`, err);
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
 
 export async function generateResponses(
   businessType: string,
   reviewText: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200);
+  const raw = await callOpenRouterWithFallback(buildUserPrompt(businessType, reviewText), 1200);
   try {
     return parseTaggedResponses(raw);
   } catch (err) {
@@ -130,13 +144,13 @@ export async function generateResponses(
 }
 
 // Versión reducida para la demo pública (sin login): una sola respuesta,
-// menos tokens. Comparte el mismo modelo gratuito fijo y, por tanto, el
+// menos tokens. Comparte los mismos modelos gratuitos y, por tanto, el
 // mismo límite diario de la cuenta — la demo cuenta contra esas 50/día.
 export async function generateDemoResponse(
   businessType: string,
   reviewText: string
 ): Promise<string> {
-  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText), 300);
+  const raw = await callOpenRouterWithFallback(buildDemoPrompt(businessType, reviewText), 300);
   try {
     return parseTaggedDemo(raw).reply;
   } catch (err) {
