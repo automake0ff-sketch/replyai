@@ -49,7 +49,30 @@ function parseTaggedDemo(text: string): { reply: string } {
   return { reply };
 }
 
-async function callOpenRouter(userPrompt: string, maxTokens: number, model: string) {
+// Cadena de modelos gratuitos, de 3 proveedores distintos a propósito
+// (si uno está caído o saturado, hay más probabilidad de que otro no lo
+// esté). Se pasan como el parámetro nativo "models" de OpenRouter (no
+// "model"), que activa SU fallback automático server-side: prueba cada
+// uno en orden y salta al siguiente ante caídas, saturación (429),
+// moderación o el modelo ya no existir — sin que tengamos que adivinar
+// nosotros cuál sigue vivo. Esto es más fiable que mantener nuestra
+// propia lista y reintentar a mano, porque OpenRouter conoce la
+// disponibilidad real en cada instante.
+//
+// Los modelos gratuitos rotan con frecuencia (nos ha pasado ya dos veces:
+// un modelo fue reasignado por un router aleatorio a un clasificador que
+// no servía, y otro dejó de ofrecerse gratis de un día para otro). Si
+// esta cadena entera falla, revisa openrouter.ai/models (filtro "Free")
+// y actualízala. Cuando haya tráfico real de pago, sustituye esto por un
+// modelo de pago fijo (ej. "anthropic/claude-haiku-4.5") para máxima
+// fiabilidad — no hay forma de tener 100% de disponibilidad gratis.
+const FREE_MODELS = [
+  "google/gemma-4-31b-it:free",
+  "qwen/qwen-2.5-7b-instruct:free",
+  "microsoft/phi-3-mini-128k-instruct:free",
+];
+
+async function callOpenRouter(userPrompt: string, maxTokens: number) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -57,7 +80,7 @@ async function callOpenRouter(userPrompt: string, maxTokens: number, model: stri
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model,
+      models: FREE_MODELS,
       temperature: 0.8,
       max_tokens: maxTokens,
       messages: [
@@ -96,45 +119,11 @@ async function callOpenRouter(userPrompt: string, maxTokens: number, model: stri
   return raw as string;
 }
 
-// Cadena de modelos gratuitos FIJOS (no el router "openrouter/free"), de
-// proveedores distintos a propósito: si Google AI Studio está saturado
-// (429 upstream, algo normal en horas punta con modelos gratuitos
-// compartidos por miles de usuarios), se prueba automáticamente con Meta
-// vía un proveedor distinto, sin que el usuario vea el fallo.
-//
-// - google/gemma-4-31b-it:free — Google DeepMind, buen soporte multilingüe.
-// - meta-llama/llama-3.3-70b-instruct:free — el más longevo y estable del
-//   catálogo gratuito de OpenRouter, buen soporte de español.
-//
-// Límite compartido de la cuenta: 50 peticiones/día sin saldo (sube a
-// 1000/día con solo 10€ de crédito, que nunca caducan). Los modelos
-// gratuitos rotan con el tiempo — si ambos dejan de estar disponibles,
-// revisa openrouter.ai/models (filtro "Free") y actualiza esta lista.
-// Cuando haya tráfico real de pago, cambia esto por un modelo de pago
-// fijo (ej. "anthropic/claude-haiku-4.5") para máxima fiabilidad.
-const FREE_MODEL_CHAIN = [
-  "google/gemma-4-31b-it:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
-];
-
-async function callOpenRouterWithFallback(userPrompt: string, maxTokens: number) {
-  let lastError: unknown;
-  for (const model of FREE_MODEL_CHAIN) {
-    try {
-      return await callOpenRouter(userPrompt, maxTokens, model);
-    } catch (err) {
-      console.error(`Fallo con ${model}, probando siguiente modelo de la cadena:`, err);
-      lastError = err;
-    }
-  }
-  throw lastError;
-}
-
 export async function generateResponses(
   businessType: string,
   reviewText: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouterWithFallback(buildUserPrompt(businessType, reviewText), 1200);
+  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200);
   try {
     return parseTaggedResponses(raw);
   } catch (err) {
@@ -150,7 +139,7 @@ export async function generateDemoResponse(
   businessType: string,
   reviewText: string
 ): Promise<string> {
-  const raw = await callOpenRouterWithFallback(buildDemoPrompt(businessType, reviewText), 300);
+  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText), 300);
   try {
     return parseTaggedDemo(raw).reply;
   } catch (err) {
