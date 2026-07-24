@@ -24,7 +24,7 @@ function parseJsonLoose<T>(text: string): T {
   }
 }
 
-async function callOpenRouter(userPrompt: string, maxTokens: number) {
+async function callOpenRouter(userPrompt: string, maxTokens: number, model = "openrouter/free") {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -37,14 +37,20 @@ async function callOpenRouter(userPrompt: string, maxTokens: number) {
       // frecuencia). Límite: 50 peticiones/día sin saldo, sube a 1000/día
       // con solo $10 de crédito. Para producción con volumen real, cambia
       // esto por un modelo de pago fijo (ej. "anthropic/claude-haiku-4.5").
-      model: "openrouter/free",
+      //
+      // Nota: NO se usa response_format:"json_object" porque no todos los
+      // modelos gratuitos lo soportan — algunos devuelven contenido vacío
+      // en vez de error cuando reciben un parámetro que no manejan. El
+      // formato JSON se pide solo por instrucción en el prompt, y se
+      // parsea de forma tolerante (parseJsonLoose) por si viene envuelto
+      // en texto o code fences.
+      model,
       temperature: 0.8,
       max_tokens: maxTokens,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt },
       ],
-      response_format: { type: "json_object" },
     }),
   });
 
@@ -55,22 +61,54 @@ async function callOpenRouter(userPrompt: string, maxTokens: number) {
 
   const data = await res.json();
   const raw = data.choices?.[0]?.message?.content;
+  const finishReason = data.choices?.[0]?.finish_reason;
+  const modelUsed = data.model;
 
-  if (!raw) throw new Error("Respuesta vacía del modelo");
+  if (!raw) {
+    // Log completo server-side (Vercel) para poder diagnosticar sin
+    // exponer detalles internos al usuario final.
+    console.error(
+      "OpenRouter devolvió contenido vacío. finish_reason:",
+      finishReason,
+      "modelo usado:",
+      modelUsed,
+      "respuesta completa:",
+      JSON.stringify(data)
+    );
+    throw new Error(
+      `El modelo (${modelUsed || "desconocido"}) no devolvió contenido. Motivo: ${finishReason || "desconocido"}. Inténtalo de nuevo.`
+    );
+  }
 
   return raw as string;
+}
+
+// Modelo de respaldo fijo, usado solo si el auto-router gratuito falla.
+// Consume saldo real de OpenRouter — por eso es un segundo intento, no
+// la primera opción.
+const FALLBACK_MODEL = "anthropic/claude-haiku-4.5";
+
+async function callOpenRouterWithFallback(userPrompt: string, maxTokens: number) {
+  try {
+    return await callOpenRouter(userPrompt, maxTokens, "openrouter/free");
+  } catch (err) {
+    console.error("Fallo con openrouter/free, reintentando con modelo de pago:", err);
+    return await callOpenRouter(userPrompt, maxTokens, FALLBACK_MODEL);
+  }
 }
 
 export async function generateResponses(
   businessType: string,
   reviewText: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200);
+  const raw = await callOpenRouterWithFallback(buildUserPrompt(businessType, reviewText), 1200);
   return parseJsonLoose<GeneratedResponses>(raw);
 }
 
 // Versión reducida para la demo pública (sin login): una sola respuesta,
 // menos tokens, más barata. Pensada para tráfico anónimo de la landing.
+// Sin fallback de pago: si el modelo gratuito falla, la demo simplemente
+// da error — no queremos gastar saldo real en tráfico anónimo sin login.
 export async function generateDemoResponse(
   businessType: string,
   reviewText: string
