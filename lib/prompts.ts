@@ -30,17 +30,16 @@ Si el sentimiento es "negative" o "neutral", añade también:
 
 5. negative: responde con empatía real, reconoce el problema sin admitir culpa legal ni negar la experiencia del cliente, evita cualquier tono defensivo o de confrontación, ofrece un canal privado para resolverlo (ej. "escríbenos directamente"), y cierra transmitiendo que el negocio mejora con este feedback. Nunca uses la palabra "lamentamos" más de una vez. Nunca culpes al cliente.
 
-Si el sentimiento es "positive", omite el campo "negative" del JSON (no lo incluyas).
+Si el sentimiento es "positive", omite por completo el bloque [NEGATIVE].
 
-Responde EXCLUSIVAMENTE con un JSON válido, sin texto adicional, sin markdown, con esta forma exacta:
-{
-  "sentiment": "positive" | "negative" | "neutral",
-  "professional": "...",
-  "friendly": "...",
-  "premium": "...",
-  "seo_local": "...",
-  "negative": "..." (opcional, solo si aplica)
-}`;
+Responde EXCLUSIVAMENTE con este formato exacto, sin explicaciones antes ni después, sin markdown:
+
+[SENTIMENT]positive, negative o neutral[/SENTIMENT]
+[PROFESSIONAL]texto de la respuesta profesional[/PROFESSIONAL]
+[FRIENDLY]texto de la respuesta cercana[/FRIENDLY]
+[PREMIUM]texto de la respuesta premium[/PREMIUM]
+[SEO_LOCAL]texto de la respuesta SEO local[/SEO_LOCAL]
+[NEGATIVE]texto de la respuesta a reseña negativa, solo si aplica[/NEGATIVE]`;
 }
 
 export function buildDemoPrompt(businessType: string, reviewText: string) {
@@ -55,8 +54,7 @@ Genera UNA sola respuesta de tono profesional pero cercano, adaptada al tipo de 
 Si la reseña es negativa o neutra, muestra empatía real, sin admitir culpa legal, sin tono defensivo, y ofrece un canal privado para resolverlo.
 Si es positiva, agradece de forma específica e invita a volver.
 
-Responde EXCLUSIVAMENTE con un JSON válido, sin texto adicional, sin markdown, con esta forma exacta:
-{
-  "reply": "..."
-}`;
+Responde EXCLUSIVAMENTE con este formato exacto, sin explicaciones antes ni después, sin markdown:
+
+[REPLY]texto de la respuesta[/REPLY]`;
 }

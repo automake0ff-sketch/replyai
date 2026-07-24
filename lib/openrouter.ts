@@ -9,19 +9,44 @@ export type GeneratedResponses = {
   negative?: string;
 };
 
-// Los modelos gratuitos a veces envuelven el JSON en texto o code fences
-// (```json ... ```) aunque se pida response_format json_object. Se
-// extrae el primer bloque {...} válido antes de fallar.
-function parseJsonLoose<T>(text: string): T {
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      return JSON.parse(match[0]) as T;
-    }
-    throw new Error("El modelo no devolvió un JSON válido");
+// Extrae contenido entre [TAG]...[/TAG]. Mucho más tolerante que JSON.parse
+// para modelos gratuitos débiles: no requiere escapar comillas ni saltos de
+// línea, y un modelo que añade texto de más alrededor no rompe el parseo.
+function extractTag(text: string, tag: string): string | undefined {
+  const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, "i");
+  const match = text.match(regex);
+  return match?.[1]?.trim();
+}
+
+function parseTaggedResponses(text: string): GeneratedResponses {
+  const professional = extractTag(text, "PROFESSIONAL");
+  const friendly = extractTag(text, "FRIENDLY");
+  const premium = extractTag(text, "PREMIUM");
+  const seoLocal = extractTag(text, "SEO_LOCAL");
+  const negative = extractTag(text, "NEGATIVE");
+  const sentimentRaw = extractTag(text, "SENTIMENT")?.toLowerCase();
+
+  if (!professional || !friendly || !premium || !seoLocal) {
+    throw new Error("El modelo no devolvió el formato esperado");
   }
+
+  const sentiment: GeneratedResponses["sentiment"] =
+    sentimentRaw === "negative" ? "negative" : sentimentRaw === "neutral" ? "neutral" : "positive";
+
+  return {
+    sentiment,
+    professional,
+    friendly,
+    premium,
+    seo_local: seoLocal,
+    ...(negative ? { negative } : {}),
+  };
+}
+
+function parseTaggedDemo(text: string): { reply: string } {
+  const reply = extractTag(text, "REPLY");
+  if (!reply) throw new Error("El modelo no devolvió el formato esperado");
+  return { reply };
 }
 
 async function callOpenRouter(userPrompt: string, maxTokens: number, model = "openrouter/free") {
@@ -40,10 +65,10 @@ async function callOpenRouter(userPrompt: string, maxTokens: number, model = "op
       //
       // Nota: NO se usa response_format:"json_object" porque no todos los
       // modelos gratuitos lo soportan — algunos devuelven contenido vacío
-      // en vez de error cuando reciben un parámetro que no manejan. El
-      // formato JSON se pide solo por instrucción en el prompt, y se
-      // parsea de forma tolerante (parseJsonLoose) por si viene envuelto
-      // en texto o code fences.
+      // en vez de error cuando reciben un parámetro que no manejan. Por eso
+      // el formato de salida se pide como etiquetas [TAG]...[/TAG] en el
+      // prompt (ver parseTaggedResponses/parseTaggedDemo más abajo), mucho
+      // más tolerante que JSON para modelos gratuitos débiles.
       model,
       temperature: 0.8,
       max_tokens: maxTokens,
@@ -102,7 +127,12 @@ export async function generateResponses(
   reviewText: string
 ): Promise<GeneratedResponses> {
   const raw = await callOpenRouterWithFallback(buildUserPrompt(businessType, reviewText), 1200);
-  return parseJsonLoose<GeneratedResponses>(raw);
+  try {
+    return parseTaggedResponses(raw);
+  } catch (err) {
+    console.error("No se pudo parsear la respuesta del modelo. Texto crudo:", raw.slice(0, 500));
+    throw err;
+  }
 }
 
 // Versión reducida para la demo pública (sin login): una sola respuesta,
@@ -114,6 +144,10 @@ export async function generateDemoResponse(
   reviewText: string
 ): Promise<string> {
   const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText), 300);
-  const parsed = parseJsonLoose<{ reply: string }>(raw);
-  return parsed.reply;
+  try {
+    return parseTaggedDemo(raw).reply;
+  } catch (err) {
+    console.error("No se pudo parsear la demo. Texto crudo:", raw.slice(0, 500));
+    throw err;
+  }
 }
