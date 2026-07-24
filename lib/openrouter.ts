@@ -108,25 +108,20 @@ async function callOpenRouter(userPrompt: string, maxTokens: number, model = "op
   return raw as string;
 }
 
-// Modelo de respaldo fijo, usado solo si el auto-router gratuito falla.
-// Consume saldo real de OpenRouter — por eso es un segundo intento, no
-// la primera opción.
-const FALLBACK_MODEL = "anthropic/claude-haiku-4.5";
-
-async function callOpenRouterWithFallback(userPrompt: string, maxTokens: number) {
-  try {
-    return await callOpenRouter(userPrompt, maxTokens, "openrouter/free");
-  } catch (err) {
-    console.error("Fallo con openrouter/free, reintentando con modelo de pago:", err);
-    return await callOpenRouter(userPrompt, maxTokens, FALLBACK_MODEL);
-  }
-}
+// Modelo fijo para el generador real (usuarios registrados). El router
+// gratuito "openrouter/free" puede asignar CUALQUIER modelo etiquetado
+// como chat, incluidos clasificadores/filtros de moderación que no sirven
+// para generar texto (ej. nvidia/nemotron-3.5-content-safety). Para una
+// función central del producto de pago, eso es demasiado inestable —
+// se usa un modelo fijo y barato en su lugar. Requiere saldo real en
+// OpenRouter (unos 5-10€ dan para miles de generaciones).
+const PRIMARY_MODEL = "anthropic/claude-haiku-4.5";
 
 export async function generateResponses(
   businessType: string,
   reviewText: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouterWithFallback(buildUserPrompt(businessType, reviewText), 1200);
+  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200, PRIMARY_MODEL);
   try {
     return parseTaggedResponses(raw);
   } catch (err) {
@@ -136,9 +131,9 @@ export async function generateResponses(
 }
 
 // Versión reducida para la demo pública (sin login): una sola respuesta,
-// menos tokens, más barata. Pensada para tráfico anónimo de la landing.
-// Sin fallback de pago: si el modelo gratuito falla, la demo simplemente
-// da error — no queremos gastar saldo real en tráfico anónimo sin login.
+// menos tokens. Sí usa el router gratuito: es tráfico anónimo de la
+// landing, sin coste, y un fallo ocasional aquí no afecta al producto
+// de pago — el usuario solo pierde una prueba gratuita, no dinero.
 export async function generateDemoResponse(
   businessType: string,
   reviewText: string
