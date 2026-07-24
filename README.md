@@ -11,7 +11,7 @@ cp .env.example .env.local
 
 ### 1. Supabase
 1. Crea proyecto en supabase.com
-2. Ve a SQL Editor → pega y ejecuta `supabase/migrations/0001_init.sql`
+2. Ve a SQL Editor → pega y ejecuta, en orden: `0001_init.sql`, `0002_fix_profile_rls.sql`, `0003_demo_requests.sql`
 3. Copia `Project URL`, `anon key` y `service_role key` a `.env.local`
 
 ### 2. OpenRouter

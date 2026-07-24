@@ -42,3 +42,21 @@ Responde EXCLUSIVAMENTE con un JSON válido, sin texto adicional, sin markdown, 
   "negative": "..." (opcional, solo si aplica)
 }`;
 }
+
+export function buildDemoPrompt(businessType: string, reviewText: string) {
+  return `Tipo de negocio: ${businessType}
+
+Reseña del cliente:
+"""
+${reviewText}
+"""
+
+Genera UNA sola respuesta de tono profesional pero cercano, adaptada al tipo de negocio.
+Si la reseña es negativa o neutra, muestra empatía real, sin admitir culpa legal, sin tono defensivo, y ofrece un canal privado para resolverlo.
+Si es positiva, agradece de forma específica e invita a volver.
+
+Responde EXCLUSIVAMENTE con un JSON válido, sin texto adicional, sin markdown, con esta forma exacta:
+{
+  "reply": "..."
+}`;
+}

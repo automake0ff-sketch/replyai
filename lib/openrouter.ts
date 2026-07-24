@@ -1,4 +1,4 @@
-import { SYSTEM_PROMPT, buildUserPrompt } from "./prompts";
+import { SYSTEM_PROMPT, buildUserPrompt, buildDemoPrompt } from "./prompts";
 
 export type GeneratedResponses = {
   sentiment: "positive" | "negative" | "neutral";
@@ -9,10 +9,22 @@ export type GeneratedResponses = {
   negative?: string;
 };
 
-export async function generateResponses(
-  businessType: string,
-  reviewText: string
-): Promise<GeneratedResponses> {
+// Los modelos gratuitos a veces envuelven el JSON en texto o code fences
+// (```json ... ```) aunque se pida response_format json_object. Se
+// extrae el primer bloque {...} válido antes de fallar.
+function parseJsonLoose<T>(text: string): T {
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (match) {
+      return JSON.parse(match[0]) as T;
+    }
+    throw new Error("El modelo no devolvió un JSON válido");
+  }
+}
+
+async function callOpenRouter(userPrompt: string, maxTokens: number) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -27,10 +39,10 @@ export async function generateResponses(
       // esto por un modelo de pago fijo (ej. "anthropic/claude-haiku-4.5").
       model: "openrouter/free",
       temperature: 0.8,
-      max_tokens: 1200,
+      max_tokens: maxTokens,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildUserPrompt(businessType, reviewText) },
+        { role: "user", content: userPrompt },
       ],
       response_format: { type: "json_object" },
     }),
@@ -46,20 +58,24 @@ export async function generateResponses(
 
   if (!raw) throw new Error("Respuesta vacía del modelo");
 
-  // Los modelos gratuitos a veces envuelven el JSON en texto o code fences
-  // (```json ... ```) aunque se pida response_format json_object. Se
-  // extrae el primer bloque {...} válido antes de fallar.
-  function parseJsonLoose(text: string): GeneratedResponses {
-    try {
-      return JSON.parse(text) as GeneratedResponses;
-    } catch {
-      const match = text.match(/\{[\s\S]*\}/);
-      if (match) {
-        return JSON.parse(match[0]) as GeneratedResponses;
-      }
-      throw new Error("El modelo no devolvió un JSON válido");
-    }
-  }
+  return raw as string;
+}
 
-  return parseJsonLoose(raw);
+export async function generateResponses(
+  businessType: string,
+  reviewText: string
+): Promise<GeneratedResponses> {
+  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200);
+  return parseJsonLoose<GeneratedResponses>(raw);
+}
+
+// Versión reducida para la demo pública (sin login): una sola respuesta,
+// menos tokens, más barata. Pensada para tráfico anónimo de la landing.
+export async function generateDemoResponse(
+  businessType: string,
+  reviewText: string
+): Promise<string> {
+  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText), 300);
+  const parsed = parseJsonLoose<{ reply: string }>(raw);
+  return parsed.reply;
 }
