@@ -13,11 +13,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  const { businessType, reviewText } = await req.json();
+  let businessType: unknown, reviewText: unknown;
+  try {
+    ({ businessType, reviewText } = await req.json());
+  } catch {
+    return NextResponse.json({ error: "Cuerpo de la petición inválido" }, { status: 400 });
+  }
 
-  if (!businessType || !reviewText || reviewText.trim().length < 3) {
+  if (
+    typeof businessType !== "string" ||
+    typeof reviewText !== "string" ||
+    !businessType.trim() ||
+    reviewText.trim().length < 3
+  ) {
     return NextResponse.json(
       { error: "Faltan datos: tipo de negocio y texto de la reseña" },
+      { status: 400 }
+    );
+  }
+
+  if (businessType.length > 100) {
+    return NextResponse.json(
+      { error: "Tipo de negocio demasiado largo" },
       { status: 400 }
     );
   }
@@ -84,13 +101,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: creditError.message }, { status: 500 });
   }
 
-  await supabase.from("generations").insert({
+  const { error: insertError } = await supabase.from("generations").insert({
     user_id: user.id,
     business_type: businessType,
     review_text: reviewText,
     review_sentiment: responses.sentiment,
     responses,
   });
+
+  if (insertError) {
+    // No bloqueamos la respuesta al usuario por un fallo de logging,
+    // pero sí queremos verlo en los logs de Vercel para depurarlo.
+    console.error("Error guardando generación:", insertError.message);
+  }
 
   return NextResponse.json({ responses });
 }

@@ -12,13 +12,14 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: `${window.location.origin}/dashboard` },
@@ -30,8 +31,32 @@ export default function SignupPage() {
       return;
     }
 
+    // Si el proyecto de Supabase tiene activada la confirmación de email
+    // (es lo habitual por defecto), signUp NO crea sesión todavía —
+    // el usuario debe confirmar desde su correo antes de poder entrar.
+    if (!data.session) {
+      setConfirmationSent(true);
+      setLoading(false);
+      return;
+    }
+
     router.push("/dashboard");
     router.refresh();
+  }
+
+  if (confirmationSent) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-paper px-6">
+        <div className="w-full max-w-sm text-center">
+          <Link href="/" className="font-display text-xl italic">ReplyAI</Link>
+          <h1 className="mt-8 font-display text-3xl">Revisa tu email</h1>
+          <p className="mt-3 font-body text-sm text-ink/60">
+            Te hemos enviado un enlace de confirmación a <strong>{email}</strong>.
+            Ábrelo para activar tu cuenta y empezar a usar ReplyAI.
+          </p>
+        </div>
+      </main>
+    );
   }
 
   return (

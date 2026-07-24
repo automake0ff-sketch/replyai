@@ -86,6 +86,7 @@ export default function GeneratorPage() {
           <textarea
             required
             rows={5}
+            minLength={3}
             maxLength={2000}
             placeholder="Pega aquí el texto de la reseña de Google..."
             className="input-field resize-none"

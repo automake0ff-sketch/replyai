@@ -26,8 +26,14 @@ create table if not exists generations (
 alter table profiles enable row level security;
 alter table generations enable row level security;
 
-create policy "own profile" on profiles
-  for all using (auth.uid() = id);
+create policy "select own profile" on profiles
+  for select using (auth.uid() = id);
+
+-- Sin política de insert/update/delete para el rol authenticated:
+-- toda mutación de `profiles` pasa por funciones SECURITY DEFINER
+-- (más abajo) o por el cliente service_role (webhook de Stripe),
+-- ambos exentos de RLS. Un usuario NUNCA debe poder escribir su
+-- propio `plan` o `credits_remaining` directamente desde el navegador.
 
 create policy "own generations" on generations
   for all using (auth.uid() = user_id);
