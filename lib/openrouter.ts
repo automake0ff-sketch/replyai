@@ -51,19 +51,19 @@ function parseTaggedDemo(text: string): { reply: string } {
 
 // Cadena de modelos gratuitos, de 3 proveedores distintos a propósito
 // (si uno está caído o saturado, hay más probabilidad de que otro no lo
-// esté). Se pasan como el parámetro nativo "models" de OpenRouter (no
-// "model"), que activa SU fallback automático server-side: prueba cada
-// uno en orden y salta al siguiente ante caídas, saturación (429),
-// moderación o el modelo ya no existir — sin que tengamos que adivinar
-// nosotros cuál sigue vivo. Esto es más fiable que mantener nuestra
-// propia lista y reintentar a mano, porque OpenRouter conoce la
-// disponibilidad real en cada instante.
+// esté). Se prueban con peticiones SEPARADAS, una a una, controladas por
+// nuestro propio código: el parámetro nativo "models" de OpenRouter (que
+// promete fallback automático server-side) no lo activó en la práctica
+// ante un 429 de proveedor — devolvió el error del primer modelo sin
+// intentar el siguiente. Con peticiones independientes por modelo,
+// garantizamos nosotros mismos que se prueba el siguiente si el anterior
+// falla, sin depender de un comportamiento que no podemos verificar.
 //
-// Los modelos gratuitos rotan con frecuencia (nos ha pasado ya dos veces:
-// un modelo fue reasignado por un router aleatorio a un clasificador que
-// no servía, y otro dejó de ofrecerse gratis de un día para otro). Si
-// esta cadena entera falla, revisa openrouter.ai/models (filtro "Free")
-// y actualízala. Cuando haya tráfico real de pago, sustituye esto por un
+// Los modelos gratuitos rotan con frecuencia y su disponibilidad varía
+// por horas (nos ha pasado ya con varios: reasignación a un clasificador
+// que no servía, retirada sin aviso, saturación del proveedor). Si esta
+// cadena entera falla, revisa openrouter.ai/models (filtro "Free") y
+// actualízala. Cuando haya tráfico real de pago, sustituye esto por un
 // modelo de pago fijo (ej. "anthropic/claude-haiku-4.5") para máxima
 // fiabilidad — no hay forma de tener 100% de disponibilidad gratis.
 const FREE_MODELS = [
@@ -72,7 +72,7 @@ const FREE_MODELS = [
   "microsoft/phi-3-mini-128k-instruct:free",
 ];
 
-async function callOpenRouter(userPrompt: string, maxTokens: number) {
+async function callSingleModel(userPrompt: string, maxTokens: number, model: string) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -80,7 +80,7 @@ async function callOpenRouter(userPrompt: string, maxTokens: number) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      models: FREE_MODELS,
+      model,
       temperature: 0.8,
       max_tokens: maxTokens,
       messages: [
@@ -92,31 +92,41 @@ async function callOpenRouter(userPrompt: string, maxTokens: number) {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`OpenRouter error (${res.status}): ${errText}`);
+    throw new Error(`OpenRouter error (${res.status}) con ${model}: ${errText}`);
   }
 
   const data = await res.json();
   const raw = data.choices?.[0]?.message?.content;
   const finishReason = data.choices?.[0]?.finish_reason;
-  const modelUsed = data.model;
 
   if (!raw) {
-    // Log completo server-side (Vercel) para poder diagnosticar sin
-    // exponer detalles internos al usuario final.
     console.error(
-      "OpenRouter devolvió contenido vacío. finish_reason:",
+      "OpenRouter devolvió contenido vacío. modelo:",
+      model,
+      "finish_reason:",
       finishReason,
-      "modelo usado:",
-      modelUsed,
       "respuesta completa:",
       JSON.stringify(data)
     );
-    throw new Error(
-      `El modelo (${modelUsed || "desconocido"}) no devolvió contenido. Motivo: ${finishReason || "desconocido"}. Inténtalo de nuevo.`
-    );
+    throw new Error(`El modelo ${model} no devolvió contenido (motivo: ${finishReason || "desconocido"})`);
   }
 
   return raw as string;
+}
+
+async function callOpenRouter(userPrompt: string, maxTokens: number) {
+  let lastError: unknown;
+  for (const model of FREE_MODELS) {
+    try {
+      return await callSingleModel(userPrompt, maxTokens, model);
+    } catch (err) {
+      console.error(`Fallo con ${model}, probando siguiente modelo de la cadena:`, err);
+      lastError = err;
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Todos los modelos gratuitos fallaron. Inténtalo de nuevo en unos minutos.");
 }
 
 export async function generateResponses(
