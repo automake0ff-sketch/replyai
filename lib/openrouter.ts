@@ -49,28 +49,56 @@ function parseTaggedDemo(text: string): { reply: string } {
   return { reply };
 }
 
-// Cadena de modelos gratuitos, de 3 proveedores distintos a propósito
-// (si uno está caído o saturado, hay más probabilidad de que otro no lo
-// esté). Se prueban con peticiones SEPARADAS, una a una, controladas por
-// nuestro propio código: el parámetro nativo "models" de OpenRouter (que
-// promete fallback automático server-side) no lo activó en la práctica
-// ante un 429 de proveedor — devolvió el error del primer modelo sin
-// intentar el siguiente. Con peticiones independientes por modelo,
-// garantizamos nosotros mismos que se prueba el siguiente si el anterior
-// falla, sin depender de un comportamiento que no podemos verificar.
-//
-// Los modelos gratuitos rotan con frecuencia y su disponibilidad varía
-// por horas (nos ha pasado ya con varios: reasignación a un clasificador
-// que no servía, retirada sin aviso, saturación del proveedor). Si esta
-// cadena entera falla, revisa openrouter.ai/models (filtro "Free") y
-// actualízala. Cuando haya tráfico real de pago, sustituye esto por un
-// modelo de pago fijo (ej. "anthropic/claude-haiku-4.5") para máxima
-// fiabilidad — no hay forma de tener 100% de disponibilidad gratis.
-const FREE_MODELS = [
-  "google/gemma-4-31b-it:free",
-  "qwen/qwen-2.5-7b-instruct:free",
-  "microsoft/phi-3-mini-128k-instruct:free",
-];
+// En vez de mantener nosotros una lista fija de nombres de modelo (que
+// hemos visto quedar desactualizada en horas: modelos retirados sin
+// aviso, renombrados, o reasignados a clasificadores que no sirven para
+// generar texto), consultamos el catálogo público y en vivo de
+// OpenRouter en cada petición, filtrando solo los que son gratuitos y
+// parecen aptos para generación de texto. Se cachea unos minutos en
+// memoria del proceso para no duplicar la consulta en ráfagas de tráfico.
+let modelListCache: { list: string[]; fetchedAt: number } | null = null;
+const MODEL_CACHE_TTL_MS = 5 * 60 * 1000;
+
+// Palabras que descartan un modelo por no ser de generación de texto de
+// propósito general (clasificadores, filtros de moderación, embeddings...).
+const BLOCKED_KEYWORDS = ["safety", "guard", "moderation", "classifier", "toxic", "embed"];
+
+// Última línea de defensa si la consulta al catálogo en vivo falla por
+// completo (ej. OpenRouter caído). Puede estar desactualizada, es un
+// mejor esfuerzo, no una garantía.
+const STATIC_FALLBACK_MODELS = ["google/gemma-4-31b-it:free"];
+
+async function getFreeModels(): Promise<string[]> {
+  if (modelListCache && Date.now() - modelListCache.fetchedAt < MODEL_CACHE_TTL_MS) {
+    return modelListCache.list;
+  }
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/models");
+    if (!res.ok) throw new Error(`No se pudo consultar el catálogo (${res.status})`);
+
+    const data = await res.json();
+    const models: any[] = data.data || [];
+
+    const list = models
+      .filter((m) => typeof m.id === "string" && m.id.endsWith(":free"))
+      .filter((m) => {
+        const haystack = `${m.id} ${m.name || ""}`.toLowerCase();
+        return !BLOCKED_KEYWORDS.some((kw) => haystack.includes(kw));
+      })
+      .filter((m) => (m.context_length ?? 0) >= 4000)
+      .map((m) => m.id as string)
+      .slice(0, 6);
+
+    if (list.length === 0) throw new Error("El catálogo no devolvió modelos gratuitos válidos");
+
+    modelListCache = { list, fetchedAt: Date.now() };
+    return list;
+  } catch (err) {
+    console.error("Fallo consultando el catálogo de OpenRouter, usando lista de respaldo:", err);
+    return STATIC_FALLBACK_MODELS;
+  }
+}
 
 async function callSingleModel(userPrompt: string, maxTokens: number, model: string) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -115,8 +143,10 @@ async function callSingleModel(userPrompt: string, maxTokens: number, model: str
 }
 
 async function callOpenRouter(userPrompt: string, maxTokens: number) {
+  const models = await getFreeModels();
   let lastError: unknown;
-  for (const model of FREE_MODELS) {
+
+  for (const model of models) {
     try {
       return await callSingleModel(userPrompt, maxTokens, model);
     } catch (err) {
@@ -124,9 +154,10 @@ async function callOpenRouter(userPrompt: string, maxTokens: number) {
       lastError = err;
     }
   }
+
   throw lastError instanceof Error
     ? lastError
-    : new Error("Todos los modelos gratuitos fallaron. Inténtalo de nuevo en unos minutos.");
+    : new Error("Todos los modelos gratuitos disponibles fallaron. Inténtalo de nuevo en unos minutos.");
 }
 
 export async function generateResponses(
