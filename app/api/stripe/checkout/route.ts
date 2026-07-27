@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { stripe, PLANS } from "@/lib/stripe";
+import { isSameOrigin } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
+  if (!isSameOrigin(req)) {
+    return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
+  }
+
   const supabase = createClient();
 
   const {

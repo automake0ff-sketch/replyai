@@ -30,8 +30,20 @@ function parseTaggedResponses(text: string): GeneratedResponses {
     throw new Error("El modelo no devolvió el formato esperado");
   }
 
-  const sentiment: GeneratedResponses["sentiment"] =
-    sentimentRaw === "negative" ? "negative" : sentimentRaw === "neutral" ? "neutral" : "positive";
+  let sentiment: GeneratedResponses["sentiment"];
+  if (sentimentRaw === "negative" || sentimentRaw === "neutral" || sentimentRaw === "positive") {
+    sentiment = sentimentRaw;
+  } else {
+    // Si el modelo no devuelve un valor reconocible, NO asumimos "positive"
+    // por defecto — sería un dato de analítica engañoso (una reseña que sí
+    // era negativa quedaría etiquetada como positiva). "neutral" es el
+    // valor honesto para "no se pudo determinar". Esto solo afecta al
+    // campo guardado en `review_sentiment`, no a si se muestra el tono de
+    // reseña negativa: eso depende únicamente de si el modelo incluyó el
+    // bloque [NEGATIVE], de forma independiente a este campo.
+    console.error("Sentimiento no reconocido en la respuesta del modelo:", sentimentRaw);
+    sentiment = "neutral";
+  }
 
   return {
     sentiment,

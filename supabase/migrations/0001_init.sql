@@ -39,26 +39,34 @@ create policy "own generations" on generations
   for all using (auth.uid() = user_id);
 
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
 begin
   insert into public.profiles (id, email) values (new.id, new.email);
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
-create or replace function consume_credit(p_user_id uuid)
-returns boolean as $$
+create or replace function public.consume_credit(p_user_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
 declare
   v_plan text;
   v_credits int;
 begin
   select plan, credits_remaining into v_plan, v_credits
-  from profiles where id = p_user_id for update;
+  from public.profiles where id = p_user_id for update;
 
   if v_plan in ('pro','agency') then
     return true;
@@ -68,17 +76,21 @@ begin
     return false;
   end if;
 
-  update profiles set credits_remaining = credits_remaining - 1 where id = p_user_id;
+  update public.profiles set credits_remaining = credits_remaining - 1 where id = p_user_id;
   return true;
 end;
-$$ language plpgsql security definer;
+$$;
 
 -- Reset mensual de créditos Free (ejecutar vía Vercel Cron el día 1 de cada mes)
-create or replace function reset_free_credits()
-returns void as $$
+create or replace function public.reset_free_credits()
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
 begin
-  update profiles
+  update public.profiles
   set credits_remaining = credits_limit
   where plan = 'free';
 end;
-$$ language plpgsql security definer;
+$$;

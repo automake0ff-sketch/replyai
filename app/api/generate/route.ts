@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateResponses } from "@/lib/openrouter";
+import { isSameOrigin } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
+  if (!isSameOrigin(req)) {
+    return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
+  }
+
   const supabase = createClient();
 
   const {
