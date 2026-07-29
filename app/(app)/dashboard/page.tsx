@@ -51,9 +51,14 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <Link href="/generator" className="btn-primary mt-10 inline-flex">
-        Generar respuestas →
-      </Link>
+      <div className="mt-10 flex gap-3">
+        <Link href="/generator" className="btn-primary inline-flex">
+          Generar respuestas →
+        </Link>
+        <Link href="/history" className="btn-secondary inline-flex">
+          Ver historial
+        </Link>
+      </div>
     </div>
   );
 }

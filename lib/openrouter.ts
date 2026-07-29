@@ -174,9 +174,10 @@ async function callOpenRouter(userPrompt: string, maxTokens: number) {
 
 export async function generateResponses(
   businessType: string,
-  reviewText: string
+  reviewText: string,
+  businessName?: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText), 1200);
+  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText, businessName), 1200);
   try {
     return parseTaggedResponses(raw);
   } catch (err) {

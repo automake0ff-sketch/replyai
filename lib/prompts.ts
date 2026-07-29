@@ -6,8 +6,9 @@ Nunca repites literalmente lo que dijo el cliente, lo parafraseas.
 Nunca prometas nada que el negocio no pueda garantizar (reembolsos, descuentos) salvo que el usuario lo indique explícitamente.
 Cada respuesta debe tener entre 40 y 90 palabras.`;
 
-export function buildUserPrompt(businessType: string, reviewText: string) {
+export function buildUserPrompt(businessType: string, reviewText: string, businessName?: string) {
   return `Tipo de negocio: ${businessType}
+${businessName ? `Nombre del negocio: ${businessName}` : ""}
 
 Reseña del cliente:
 """
@@ -22,7 +23,7 @@ Genera respuestas a esta reseña siguiendo estas 4 variantes de tono, siempre ad
 
 3. premium: vocabulario cuidado, transmite exclusividad y atención al detalle, sin sonar pomposo. Adecuado para negocios de gama alta.
 
-4. seo_local: igual de natural que las anteriores pero integra de forma orgánica el nombre del negocio (si se menciona o infiere), la zona/ciudad (si aparece) y 1-2 términos de servicio relevantes. Nunca debe leerse como keyword-stuffing.
+4. seo_local: igual de natural que las anteriores pero integra de forma orgánica${businessName ? ` el nombre del negocio ("${businessName}")` : " el nombre del negocio (si se menciona o infiere)"}, la zona/ciudad (si aparece) y 1-2 términos de servicio relevantes. Nunca debe leerse como keyword-stuffing.
 
 Además, determina el sentimiento de la reseña ("positive", "negative" o "neutral").
 

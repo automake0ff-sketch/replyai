@@ -69,10 +69,13 @@ export async function POST(req: NextRequest) {
   }
 
   // Comprobación previa (solo lectura): evita pagar una llamada a la IA
-  // si el usuario ya no tiene créditos.
+  // si el usuario ya no tiene créditos. Aprovechamos la misma consulta
+  // para traer el nombre del negocio guardado en el perfil (configurado
+  // en Ajustes) y que la IA lo use de forma natural, sobre todo en el
+  // tono SEO local.
   const { data: precheck } = await supabase
     .from("profiles")
-    .select("plan, credits_remaining")
+    .select("plan, credits_remaining, business_name")
     .eq("id", user.id)
     .single();
 
@@ -88,7 +91,7 @@ export async function POST(req: NextRequest) {
   // Genera: si el modelo falla, el usuario no pierde un crédito por nada.
   let responses;
   try {
-    responses = await generateResponses(businessType, reviewText);
+    responses = await generateResponses(businessType, reviewText, precheck?.business_name || undefined);
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Error generando respuestas" },

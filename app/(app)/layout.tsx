@@ -27,6 +27,9 @@ export default async function AppLayout({
             <Link href="/generator" className="rounded-lg px-3 py-2 font-body text-sm text-ink/70 hover:bg-ink/5">
               Generador
             </Link>
+            <Link href="/history" className="rounded-lg px-3 py-2 font-body text-sm text-ink/70 hover:bg-ink/5">
+              Historial
+            </Link>
             <Link href="/settings" className="rounded-lg px-3 py-2 font-body text-sm text-ink/70 hover:bg-ink/5">
               Ajustes
             </Link>
