@@ -154,16 +154,40 @@ async function callSingleModel(userPrompt: string, maxTokens: number, model: str
   return raw as string;
 }
 
-async function callOpenRouter(userPrompt: string, maxTokens: number) {
+async function generateWithFallback<T>(
+  userPrompt: string,
+  maxTokens: number,
+  parse: (raw: string) => T
+): Promise<T> {
   const models = await getFreeModels();
   let lastError: unknown;
 
   for (const model of models) {
+    let raw: string;
     try {
-      return await callSingleModel(userPrompt, maxTokens, model);
+      raw = await callSingleModel(userPrompt, maxTokens, model);
     } catch (err) {
+      // Fallo de transporte (red, 429, modelo caído, contenido vacío):
+      // se prueba el siguiente modelo de la cadena.
       console.error(`Fallo con ${model}, probando siguiente modelo de la cadena:`, err);
       lastError = err;
+      continue;
+    }
+
+    try {
+      return parse(raw);
+    } catch (err) {
+      // El modelo SÍ respondió, pero no siguió el formato [TAG] esperado
+      // (típico de modelos gratuitos débiles que ignoran instrucciones
+      // de formato). Antes esto tiraba la toalla aquí mismo sin probar
+      // el resto de la cadena — ahora se prueba el siguiente modelo
+      // igual que ante un fallo de transporte.
+      console.error(
+        `Modelo ${model} respondió pero con formato inesperado, probando siguiente. Texto crudo:`,
+        raw.slice(0, 500)
+      );
+      lastError = err;
+      continue;
     }
   }
 
@@ -178,13 +202,11 @@ export async function generateResponses(
   businessName?: string,
   brandVoiceNotes?: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText, businessName, brandVoiceNotes), 1200);
-  try {
-    return parseTaggedResponses(raw);
-  } catch (err) {
-    console.error("No se pudo parsear la respuesta del modelo. Texto crudo:", raw.slice(0, 500));
-    throw err;
-  }
+  return generateWithFallback(
+    buildUserPrompt(businessType, reviewText, businessName, brandVoiceNotes),
+    1200,
+    parseTaggedResponses
+  );
 }
 
 // Versión reducida (una sola respuesta, menos tokens): la usan tanto la
@@ -197,11 +219,10 @@ export async function generateDemoResponse(
   businessName?: string,
   brandVoiceNotes?: string
 ): Promise<string> {
-  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText, businessName, brandVoiceNotes), 300);
-  try {
-    return parseTaggedDemo(raw).reply;
-  } catch (err) {
-    console.error("No se pudo parsear la demo. Texto crudo:", raw.slice(0, 500));
-    throw err;
-  }
+  const result = await generateWithFallback(
+    buildDemoPrompt(businessType, reviewText, businessName, brandVoiceNotes),
+    300,
+    parseTaggedDemo
+  );
+  return result.reply;
 }
