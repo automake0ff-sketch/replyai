@@ -186,14 +186,15 @@ export async function generateResponses(
   }
 }
 
-// Versión reducida para la demo pública (sin login): una sola respuesta,
-// menos tokens. Comparte los mismos modelos gratuitos y, por tanto, el
-// mismo límite diario de la cuenta — la demo cuenta contra esas 50/día.
+// Versión reducida (una sola respuesta, menos tokens): la usan tanto la
+// demo pública (sin login, sin businessName) como la extensión de Chrome
+// (con login vía token, sí pasa businessName si el usuario lo configuró).
 export async function generateDemoResponse(
   businessType: string,
-  reviewText: string
+  reviewText: string,
+  businessName?: string
 ): Promise<string> {
-  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText), 300);
+  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText, businessName), 300);
   try {
     return parseTaggedDemo(raw).reply;
   } catch (err) {

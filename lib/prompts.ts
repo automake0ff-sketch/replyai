@@ -43,8 +43,9 @@ Responde EXCLUSIVAMENTE con este formato exacto, sin explicaciones antes ni desp
 [NEGATIVE]texto de la respuesta a reseña negativa, solo si aplica[/NEGATIVE]`;
 }
 
-export function buildDemoPrompt(businessType: string, reviewText: string) {
+export function buildDemoPrompt(businessType: string, reviewText: string, businessName?: string) {
   return `Tipo de negocio: ${businessType}
+${businessName ? `Nombre del negocio: ${businessName}` : ""}
 
 Reseña del cliente:
 """

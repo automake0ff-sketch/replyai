@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
   // dashboard) — no hay sitio en la interfaz de Google para elegir tono.
   let reply: string;
   try {
-    reply = await generateDemoResponse(businessType, reviewText);
+    reply = await generateDemoResponse(businessType, reviewText, profile?.business_name || undefined);
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Error generando la respuesta" },
