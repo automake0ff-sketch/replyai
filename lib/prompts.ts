@@ -6,9 +6,15 @@ Nunca repites literalmente lo que dijo el cliente, lo parafraseas.
 Nunca prometas nada que el negocio no pueda garantizar (reembolsos, descuentos) salvo que el usuario lo indique explícitamente.
 Cada respuesta debe tener entre 40 y 90 palabras.`;
 
-export function buildUserPrompt(businessType: string, reviewText: string, businessName?: string) {
+export function buildUserPrompt(
+  businessType: string,
+  reviewText: string,
+  businessName?: string,
+  brandVoiceNotes?: string
+) {
   return `Tipo de negocio: ${businessType}
 ${businessName ? `Nombre del negocio: ${businessName}` : ""}
+${brandVoiceNotes ? `Instrucciones de marca del negocio (síguelas en todos los tonos, salvo que contradigan las reglas de arriba sobre honestidad y no prometer cosas): ${brandVoiceNotes}` : ""}
 
 Reseña del cliente:
 """
@@ -43,9 +49,10 @@ Responde EXCLUSIVAMENTE con este formato exacto, sin explicaciones antes ni desp
 [NEGATIVE]texto de la respuesta a reseña negativa, solo si aplica[/NEGATIVE]`;
 }
 
-export function buildDemoPrompt(businessType: string, reviewText: string, businessName?: string) {
+export function buildDemoPrompt(businessType: string, reviewText: string, businessName?: string, brandVoiceNotes?: string) {
   return `Tipo de negocio: ${businessType}
 ${businessName ? `Nombre del negocio: ${businessName}` : ""}
+${brandVoiceNotes ? `Instrucciones de marca del negocio (síguelas, salvo que contradigan las reglas de arriba): ${brandVoiceNotes}` : ""}
 
 Reseña del cliente:
 """

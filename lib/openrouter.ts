@@ -175,9 +175,10 @@ async function callOpenRouter(userPrompt: string, maxTokens: number) {
 export async function generateResponses(
   businessType: string,
   reviewText: string,
-  businessName?: string
+  businessName?: string,
+  brandVoiceNotes?: string
 ): Promise<GeneratedResponses> {
-  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText, businessName), 1200);
+  const raw = await callOpenRouter(buildUserPrompt(businessType, reviewText, businessName, brandVoiceNotes), 1200);
   try {
     return parseTaggedResponses(raw);
   } catch (err) {
@@ -187,14 +188,16 @@ export async function generateResponses(
 }
 
 // Versión reducida (una sola respuesta, menos tokens): la usan tanto la
-// demo pública (sin login, sin businessName) como la extensión de Chrome
-// (con login vía token, sí pasa businessName si el usuario lo configuró).
+// demo pública (sin login, sin businessName/brandVoiceNotes) como la
+// extensión de Chrome (con login vía token, sí pasa ambos si el usuario
+// los configuró en Ajustes).
 export async function generateDemoResponse(
   businessType: string,
   reviewText: string,
-  businessName?: string
+  businessName?: string,
+  brandVoiceNotes?: string
 ): Promise<string> {
-  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText, businessName), 300);
+  const raw = await callOpenRouter(buildDemoPrompt(businessType, reviewText, businessName, brandVoiceNotes), 300);
   try {
     return parseTaggedDemo(raw).reply;
   } catch (err) {

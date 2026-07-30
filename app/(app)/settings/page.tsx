@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { UpgradeButton, ManageBillingButton } from "@/components/dashboard/PlanActions";
-import BusinessNameForm from "@/components/dashboard/BusinessNameForm";
+import BusinessProfileForm from "@/components/dashboard/BusinessProfileForm";
 import ExtensionTokenPanel from "@/components/dashboard/ExtensionTokenPanel";
 
 export default async function SettingsPage() {
@@ -11,7 +11,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan, email, stripe_customer_id, business_name")
+    .select("plan, email, stripe_customer_id, business_name, brand_voice_notes")
     .eq("id", user!.id)
     .single();
 
@@ -40,12 +40,15 @@ export default async function SettingsPage() {
 
       <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
         <p className="font-body text-xs uppercase tracking-wide text-ink/40">
-          Nombre del negocio
+          Perfil del negocio
         </p>
         <p className="mt-1 font-body text-sm text-ink/60">
-          Se usará automáticamente en tus respuestas generadas, sobre todo en el tono SEO Local.
+          Se usa automáticamente en tus respuestas generadas — el nombre sobre todo en el tono SEO Local, y la voz de marca en todos los tonos.
         </p>
-        <BusinessNameForm initialName={profile?.business_name || ""} />
+        <BusinessProfileForm
+          initialName={profile?.business_name || ""}
+          initialBrandVoice={profile?.brand_voice_notes || ""}
+        />
       </div>
 
       <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">

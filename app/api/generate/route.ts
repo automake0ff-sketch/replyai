@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
   // tono SEO local.
   const { data: precheck } = await supabase
     .from("profiles")
-    .select("plan, credits_remaining, business_name")
+    .select("plan, credits_remaining, business_name, brand_voice_notes")
     .eq("id", user.id)
     .single();
 
@@ -91,7 +91,12 @@ export async function POST(req: NextRequest) {
   // Genera: si el modelo falla, el usuario no pierde un crédito por nada.
   let responses;
   try {
-    responses = await generateResponses(businessType, reviewText, precheck?.business_name || undefined);
+    responses = await generateResponses(
+      businessType,
+      reviewText,
+      precheck?.business_name || undefined,
+      precheck?.brand_voice_notes || undefined
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Error generando respuestas" },

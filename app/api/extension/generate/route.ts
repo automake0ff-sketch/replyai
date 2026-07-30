@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan, credits_remaining, business_name")
+    .select("plan, credits_remaining, business_name, brand_voice_notes")
     .eq("id", userId)
     .single();
 
@@ -111,7 +111,12 @@ export async function POST(req: NextRequest) {
   // dashboard) — no hay sitio en la interfaz de Google para elegir tono.
   let reply: string;
   try {
-    reply = await generateDemoResponse(businessType, reviewText, profile?.business_name || undefined);
+    reply = await generateDemoResponse(
+      businessType,
+      reviewText,
+      profile?.business_name || undefined,
+      profile?.brand_voice_notes || undefined
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Error generando la respuesta" },
