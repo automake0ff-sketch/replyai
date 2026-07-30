@@ -31,7 +31,7 @@ create or replace function public.generate_api_token()
 returns text
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_token text;
@@ -82,7 +82,7 @@ create or replace function public.get_user_id_for_token(p_token text)
 returns uuid
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_hash text;
