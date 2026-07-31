@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import LandingDemo from "@/components/generator/LandingDemo";
+import BeforeAfter from "@/components/marketing/BeforeAfter";
+import FounderGuarantee from "@/components/marketing/FounderGuarantee";
+import FaqSection from "@/components/marketing/FaqSection";
+import RoadmapTeaser from "@/components/marketing/RoadmapTeaser";
 
 export const metadata: Metadata = {
   title: "ReplyAI — Reply to Google reviews in seconds",
@@ -112,15 +116,11 @@ export default function LandingPageEN() {
         </div>
       </section>
 
-      {/* Honest trust section — no invented numbers */}
-      <section className="mx-auto max-w-4xl px-6 py-16 text-center">
-        <h2 className="font-display text-3xl">Built for businesses with no time to waste</h2>
-        <p className="mx-auto mt-4 max-w-xl font-body text-ink/60">
-          We're a new product — we'd rather be upfront about that than
-          make up numbers. Try the demo above with a real review from your
-          own business and judge the quality yourself before signing up.
-        </p>
-      </section>
+      {/* Before / After */}
+      <BeforeAfter locale="en" />
+
+      {/* Founder's guarantee — honest, no invented testimonials */}
+      <FounderGuarantee locale="en" />
 
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-5xl px-6 py-20">
@@ -159,7 +159,11 @@ export default function LandingPageEN() {
             </Link>
           </div>
         </div>
+        <RoadmapTeaser locale="en" />
       </section>
+
+      {/* FAQ */}
+      <FaqSection locale="en" />
 
       {/* Final CTA */}
       <section className="mx-auto max-w-3xl px-6 pb-24 text-center">

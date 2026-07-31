@@ -1,5 +1,9 @@
 import Link from "next/link";
 import LandingDemo from "@/components/generator/LandingDemo";
+import BeforeAfter from "@/components/marketing/BeforeAfter";
+import FounderGuarantee from "@/components/marketing/FounderGuarantee";
+import FaqSection from "@/components/marketing/FaqSection";
+import RoadmapTeaser from "@/components/marketing/RoadmapTeaser";
 
 const BUSINESS_TYPES = [
   "Restaurantes",
@@ -105,15 +109,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Por qué ReplyAI (sin cifras infladas: honesto porque el producto es nuevo) */}
-      <section className="mx-auto max-w-4xl px-6 py-16 text-center">
-        <h2 className="font-display text-3xl">Hecho para negocios que no tienen tiempo que perder</h2>
-        <p className="mx-auto mt-4 max-w-xl font-body text-ink/60">
-          Somos un producto nuevo — preferimos decírtelo claro en vez de
-          inventar cifras. Prueba la demo de arriba con una reseña real de tu
-          negocio y juzga tú mismo la calidad antes de registrarte.
-        </p>
-      </section>
+      {/* Antes / Después */}
+      <BeforeAfter locale="es" />
+
+      {/* Garantía del fundador (honesta: sin testimonios inventados) */}
+      <FounderGuarantee locale="es" />
 
       {/* Precios */}
       <section id="precios" className="mx-auto max-w-5xl px-6 py-20">
@@ -152,7 +152,11 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
+        <RoadmapTeaser locale="es" />
       </section>
+
+      {/* FAQ */}
+      <FaqSection locale="es" />
 
       {/* CTA final */}
       <section className="mx-auto max-w-3xl px-6 pb-24 text-center">
