@@ -57,12 +57,14 @@ export async function POST(req: NextRequest) {
         .eq("id", user.id);
     }
 
+    const appUrl = req.nextUrl.origin;
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: PLANS[plan].priceId, quantity: 1 }],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?checkout=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings`,
+      success_url: `${appUrl}/dashboard?checkout=success`,
+      cancel_url: `${appUrl}/settings`,
       metadata: { supabase_user_id: user.id, plan },
     });
 
