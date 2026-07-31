@@ -38,6 +38,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
+    console.error("Error en /api/stripe/portal:", {
+      message: err.message,
+      type: err.type,
+      code: err.code,
+      statusCode: err.statusCode,
+    });
     return NextResponse.json(
       { error: err.message || "Error abriendo el portal de facturación" },
       { status: 500 }

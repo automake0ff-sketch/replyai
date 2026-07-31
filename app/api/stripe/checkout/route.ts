@@ -68,6 +68,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
+    console.error("Error en /api/stripe/checkout:", {
+      message: err.message,
+      type: err.type,
+      code: err.code,
+      statusCode: err.statusCode,
+    });
     return NextResponse.json(
       { error: err.message || "Error creando la sesión de pago" },
       { status: 500 }
