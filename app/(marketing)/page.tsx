@@ -4,6 +4,7 @@ import BeforeAfter from "@/components/marketing/BeforeAfter";
 import FounderGuarantee from "@/components/marketing/FounderGuarantee";
 import FaqSection from "@/components/marketing/FaqSection";
 import RoadmapTeaser from "@/components/marketing/RoadmapTeaser";
+import PricingTable from "@/components/marketing/PricingTable";
 
 const BUSINESS_TYPES = [
   "Restaurantes",
@@ -152,6 +153,7 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
+        <PricingTable locale="es" />
         <RoadmapTeaser locale="es" />
       </section>
 

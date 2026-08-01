@@ -55,3 +55,31 @@ export async function sendMonthlyReport(to: string, stats: MonthlyStats) {
     html: renderReportHtml(stats),
   });
 }
+
+function renderLowCreditsHtml(creditsRemaining: number) {
+  return `
+  <div style="font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #14110F;">
+    <p style="font-size: 20px; font-style: italic; margin: 0 0 24px;">ReplyAI</p>
+    <h1 style="font-size: 22px; margin: 0 0 8px;">Te quedan ${creditsRemaining} respuestas este mes</h1>
+    <p style="font-size: 14px; color: #14110F99; line-height: 1.6; margin: 12px 0 24px;">
+      Tu plan Free incluye 20 respuestas al mes. Cuando se agoten, tendrás
+      que esperar al reset del mes que viene — o pasarte a Pro para
+      respuestas ilimitadas desde ya.
+    </p>
+    <a href="${process.env.NEXT_PUBLIC_APP_URL}/settings" style="display: inline-block; background: #14110F; color: #FBF9F6; text-decoration: none; padding: 12px 24px; border-radius: 999px; font-size: 14px;">
+      Pasar a Pro — 19€/mes
+    </a>
+    <p style="font-size: 11px; color: #14110F66; margin-top: 32px;">
+      Recibes esto porque estás cerca del límite de tu plan Free.
+    </p>
+  </div>`;
+}
+
+export async function sendLowCreditsWarning(to: string, creditsRemaining: number) {
+  await resend.emails.send({
+    from: "ReplyAI <onboarding@resend.dev>",
+    to,
+    subject: `Te quedan ${creditsRemaining} respuestas gratis este mes`,
+    html: renderLowCreditsHtml(creditsRemaining),
+  });
+}

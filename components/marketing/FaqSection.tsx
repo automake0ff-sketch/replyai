@@ -20,6 +20,14 @@ const FAQS = {
       q: "¿Necesito tarjeta para probarlo?",
       a: "No. El plan Free incluye 20 respuestas al mes sin pedir tarjeta.",
     },
+    {
+      q: "¿Puedo personalizar el tono de las respuestas?",
+      a: "Sí, de dos formas: eliges entre 5 tonos ya diseñados (profesional, cercano, premium, SEO local, reseña negativa) en cada generación, y además puedes configurar una 'voz de marca' en Ajustes — instrucciones libres como 'firma siempre como Ana' o 'nunca menciones descuentos' — que se aplican automáticamente a todas tus respuestas.",
+    },
+    {
+      q: "¿Funciona con TripAdvisor, Yelp o Facebook, además de Google?",
+      a: "Ahora mismo ReplyAI está enfocado en reseñas de Google, que es donde la mayoría de negocios locales reciben el grueso de su volumen. Integrar otras plataformas de reseñas es algo que valoramos para el futuro, pero no está disponible todavía.",
+    },
   ],
   en: [
     {
@@ -41,6 +49,14 @@ const FAQS = {
     {
       q: "Do I need a card to try it?",
       a: "No. The Free plan includes 20 replies per month, no card required.",
+    },
+    {
+      q: "Can I customize the tone of the replies?",
+      a: "Yes, two ways: pick from 5 built-in tones (professional, friendly, premium, local SEO, negative review) on every generation, and you can also set a 'brand voice' in Settings — free-form instructions like 'always sign as Ana' or 'never mention discounts' — applied automatically to every reply.",
+    },
+    {
+      q: "Does it work with TripAdvisor, Yelp, or Facebook, besides Google?",
+      a: "Right now ReplyAI is focused on Google reviews, where most local businesses get the bulk of their volume. Supporting other review platforms is something we're considering for the future, but it's not available yet.",
     },
   ],
 };

@@ -25,12 +25,22 @@ cp .env.example .env.local
 3. Copia tu clave secreta a `STRIPE_SECRET_KEY`
 4. Webhook local: `stripe listen --forward-to localhost:3000/api/stripe/webhook` → copia el signing secret a `STRIPE_WEBHOOK_SECRET`
 
-### 4. Resend (informe mensual por email)
+### 4. Login con Google
+1. Ve a [Google Cloud Console](https://console.cloud.google.com) → crea un proyecto (o usa uno existente) → APIs y servicios → Pantalla de consentimiento OAuth (configúrala en modo "Externo", solo necesitas nombre y email de soporte)
+2. Credenciales → Crear credenciales → ID de cliente de OAuth → tipo "Aplicación web"
+3. En Supabase → Authentication → Providers → Google → copia la "Callback URL (for OAuth)" que te muestra Supabase ahí mismo
+4. Pega esa URL en Google Cloud, en "URIs de redirección autorizados" de las credenciales que acabas de crear
+5. Copia el "Client ID" y "Client Secret" que te da Google → pégalos en Supabase, en esa misma pantalla de Google Provider → Guardar
+6. Activa el toggle "Enable Google provider" en Supabase
+
+No hace falta ninguna variable de entorno nueva en Vercel para esto — toda la configuración vive en Supabase.
+
+### 5. Resend (informe mensual + avisos de créditos bajos)
 1. Crea cuenta gratis en resend.com (100 emails/día, 3000/mes gratis)
 2. Genera una API key → pégala en `RESEND_API_KEY`
 3. Sin verificar dominio propio, los emails salen de `onboarding@resend.dev` — funciona para probar, pero para producción real verifica tu dominio en resend.com/domains y cambia el `from` en `lib/email.ts`
 
-### 5. Arrancar
+### 6. Arrancar
 ```bash
 npm run dev
 ```

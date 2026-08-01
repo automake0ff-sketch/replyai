@@ -5,6 +5,7 @@ import BeforeAfter from "@/components/marketing/BeforeAfter";
 import FounderGuarantee from "@/components/marketing/FounderGuarantee";
 import FaqSection from "@/components/marketing/FaqSection";
 import RoadmapTeaser from "@/components/marketing/RoadmapTeaser";
+import PricingTable from "@/components/marketing/PricingTable";
 
 export const metadata: Metadata = {
   title: "ReplyAI — Reply to Google reviews in seconds",
@@ -159,6 +160,7 @@ export default function LandingPageEN() {
             </Link>
           </div>
         </div>
+        <PricingTable locale="en" />
         <RoadmapTeaser locale="en" />
       </section>
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -68,7 +69,17 @@ export default function SignupPage() {
           20 respuestas gratis al mes. Sin tarjeta.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <div className="mt-6">
+          <GoogleAuthButton />
+        </div>
+
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-ink/10" />
+          <span className="font-body text-xs text-ink/40">o con email</span>
+          <div className="h-px flex-1 bg-ink/10" />
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             required

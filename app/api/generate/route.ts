@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateResponses } from "@/lib/openrouter";
 import { isSameOrigin } from "@/lib/security";
+import { sendLowCreditsWarning } from "@/lib/email";
+
+// A este nº de créditos restantes se manda el aviso — una sola vez,
+// porque solo se dispara al cruzar exactamente este valor tras
+// descontar (no cada vez que el usuario está por debajo).
+const LOW_CREDITS_THRESHOLD = 5;
 
 export async function POST(req: NextRequest) {
   if (!isSameOrigin(req)) {
@@ -112,6 +118,14 @@ export async function POST(req: NextRequest) {
 
   if (creditError) {
     return NextResponse.json({ error: creditError.message }, { status: 500 });
+  }
+
+  // Aviso de créditos bajos: solo para Free, y solo la vez exacta que
+  // cruza el umbral (evita mandar el email en cada generación posterior).
+  if (!isUnlimited && (precheck?.credits_remaining ?? 0) - 1 === LOW_CREDITS_THRESHOLD) {
+    sendLowCreditsWarning(user.email!, LOW_CREDITS_THRESHOLD).catch((err) =>
+      console.error("Error enviando aviso de créditos bajos:", err)
+    );
   }
 
   const { error: insertError } = await supabase.from("generations").insert({
