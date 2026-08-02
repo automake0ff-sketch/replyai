@@ -1,8 +1,9 @@
 -- ============================================================
 -- SCRIPT CONSOLIDADO — pega esto ENTERO en Supabase SQL Editor
 -- y dale a Ejecutar. Es seguro aunque ya hayas corrido antes
--- alguna de las migraciones 0002 a 0006 por separado: está
--- escrito para no fallar si algo ya existe.
+-- alguna de las migraciones por separado: está escrito para no
+-- fallar si algo ya existe. Cubre 0002 a 0008 (la 0001 se asume
+-- ya ejecutada, es la que crea las tablas base).
 -- ============================================================
 
 -- ===== 0002: fix de seguridad en profiles =====
@@ -76,7 +77,7 @@ begin
 end;
 $$;
 
--- ===== 0005: nombre del negocio =====
+-- ===== 0005: nombre del negocio (funcion inicial, se reemplaza en 0007) =====
 create or replace function public.update_own_business_name(p_business_name text)
 returns void
 language plpgsql
@@ -94,7 +95,8 @@ begin
 end;
 $$;
 
--- ===== 0006: tokens de API para la extensión de Chrome =====
+-- ===== 0006 + 0008: tokens de API para la extensión de Chrome =====
+-- (incluye ya el fix de search_path de pgcrypto de la 0008)
 create extension if not exists pgcrypto;
 
 create table if not exists api_tokens (
@@ -111,7 +113,7 @@ create or replace function public.generate_api_token()
 returns text
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_token text;
@@ -155,7 +157,7 @@ create or replace function public.get_user_id_for_token(p_token text)
 returns uuid
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_hash text;
@@ -172,9 +174,38 @@ begin
 end;
 $$;
 
+-- ===== 0007: voz de marca (reemplaza la funcion de nombre de negocio) =====
+alter table profiles add column if not exists brand_voice_notes text;
+
+create or replace function public.update_own_business_profile(
+  p_business_name text,
+  p_brand_voice_notes text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if p_business_name is not null and length(p_business_name) > 200 then
+    raise exception 'Nombre de negocio demasiado largo';
+  end if;
+
+  if p_brand_voice_notes is not null and length(p_brand_voice_notes) > 500 then
+    raise exception 'Instrucciones de marca demasiado largas';
+  end if;
+
+  update public.profiles
+  set
+    business_name = nullif(trim(p_business_name), ''),
+    brand_voice_notes = nullif(trim(p_brand_voice_notes), '')
+  where id = auth.uid();
+end;
+$$;
+
 -- ============================================================
--- Fin. Si todo salió "Success. No rows returned" (o similar),
--- tu base de datos ya tiene aplicado todo lo construido hasta
--- ahora: RLS segura, historial, nombre de negocio, y tokens
--- de la extensión de Chrome.
+-- Fin. Si todo salió "Success" (o similar, sin errores en rojo),
+-- tu base de datos ya tiene aplicado TODO lo construido hasta
+-- ahora: RLS segura, historial, nombre de negocio, voz de marca,
+-- y tokens de la extensión de Chrome con pgcrypto funcionando.
 -- ============================================================
