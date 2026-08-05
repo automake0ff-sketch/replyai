@@ -28,5 +28,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/blog/como-responder-resena-negativa-google`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/blog/resenas-google-seo-local`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/blog/errores-responder-resenas-negativas`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.6,
+    },
   ];
 }
