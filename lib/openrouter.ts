@@ -217,10 +217,11 @@ export async function generateDemoResponse(
   businessType: string,
   reviewText: string,
   businessName?: string,
-  brandVoiceNotes?: string
+  brandVoiceNotes?: string,
+  tone?: string
 ): Promise<string> {
   const result = await generateWithFallback(
-    buildDemoPrompt(businessType, reviewText, businessName, brandVoiceNotes),
+    buildDemoPrompt(businessType, reviewText, businessName, brandVoiceNotes, tone),
     300,
     parseTaggedDemo
   );

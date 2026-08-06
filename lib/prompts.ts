@@ -51,7 +51,24 @@ Responde EXCLUSIVAMENTE con este formato exacto, sin explicaciones antes ni desp
 [NEGATIVE]texto de la respuesta a reseña negativa, solo si aplica[/NEGATIVE]`;
 }
 
-export function buildDemoPrompt(businessType: string, reviewText: string, businessName?: string, brandVoiceNotes?: string) {
+const TONE_DESCRIPTIONS: Record<string, string> = {
+  professional: "formal y correcto, orientado a mostrar seriedad. Agradece, menciona algo concreto de la reseña, cierra invitando a volver sin ser insistente.",
+  friendly: "cercano, como si el dueño respondiera personalmente. Cálido, frase corta y humana.",
+  premium: "vocabulario cuidado, transmite exclusividad y atención al detalle, sin sonar pomposo.",
+  seo_local: "natural pero integra de forma orgánica el nombre del negocio y la zona (si se conocen) y 1-2 términos de servicio relevantes, sin sonar a keyword-stuffing.",
+};
+
+export function buildDemoPrompt(
+  businessType: string,
+  reviewText: string,
+  businessName?: string,
+  brandVoiceNotes?: string,
+  tone?: string
+) {
+  const toneInstruction = tone && TONE_DESCRIPTIONS[tone]
+    ? `Genera UNA sola respuesta de tono ${tone}: ${TONE_DESCRIPTIONS[tone]}`
+    : "Genera UNA sola respuesta de tono profesional pero cercano, adaptada al tipo de negocio.";
+
   return `Tipo de negocio: ${businessType}
 ${businessName ? `Nombre del negocio: ${businessName}` : ""}
 ${brandVoiceNotes ? `Instrucciones de marca del negocio (síguelas, salvo que contradigan las reglas de arriba): ${brandVoiceNotes}` : ""}
@@ -61,7 +78,7 @@ Reseña del cliente:
 ${reviewText}
 """
 
-Genera UNA sola respuesta de tono profesional pero cercano, adaptada al tipo de negocio.
+${toneInstruction}
 Si la reseña es negativa o neutra, muestra empatía real, reconoce el problema sin admitir culpa legal ni negar la experiencia del cliente, evita cualquier tono defensivo, ofrece un canal privado para resolverlo SIN inventar un email o teléfono concreto (usa "contáctanos directamente" o similar, nunca una dirección o número inventados), y cierra transmitiendo que el negocio mejora con este feedback. Nunca uses la palabra "lamentamos" más de una vez ni frases hechas como "lamentamos las molestias".
 Si es positiva, agradece de forma específica e invita a volver.
 

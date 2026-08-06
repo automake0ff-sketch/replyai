@@ -1,6 +1,33 @@
 import { createClient } from "@/lib/supabase/server";
 import HistoryStats from "@/components/dashboard/HistoryStats";
 import HistoryList from "@/components/dashboard/HistoryList";
+import SentimentTrend from "@/components/dashboard/SentimentTrend";
+
+function buildWeeklyBuckets(
+  list: { review_sentiment: string | null; created_at: string }[]
+) {
+  const WEEKS = 8;
+  const now = new Date();
+  const buckets = Array.from({ length: WEEKS }, (_, i) => {
+    const weeksAgo = WEEKS - 1 - i;
+    const start = new Date(now);
+    start.setDate(start.getDate() - weeksAgo * 7 - 6);
+    const label = start.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+    return { label, positive: 0, negative: 0, neutral: 0, total: 0, weeksAgo };
+  });
+
+  for (const g of list) {
+    const daysAgo = Math.floor((now.getTime() - new Date(g.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    const weeksAgo = Math.floor(daysAgo / 7);
+    const bucket = buckets.find((b) => b.weeksAgo === weeksAgo);
+    if (!bucket) continue;
+    const s = (g.review_sentiment as "positive" | "negative" | "neutral" | null) || "neutral";
+    bucket.total++;
+    if (s === "positive" || s === "negative" || s === "neutral") bucket[s]++;
+  }
+
+  return buckets;
+}
 
 export default async function HistoryPage() {
   const supabase = createClient();
@@ -29,6 +56,8 @@ export default async function HistoryPage() {
   const topBusinessType =
     Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
+  const weeklyBuckets = buildWeeklyBuckets(list);
+
   return (
     <div>
       <h1 className="font-display text-3xl">Historial</h1>
@@ -42,6 +71,10 @@ export default async function HistoryPage() {
           sentimentCounts={sentimentCounts}
           topBusinessType={topBusinessType}
         />
+      </div>
+
+      <div className="mt-6">
+        <SentimentTrend buckets={weeklyBuckets} />
       </div>
 
       <HistoryList generations={list as any} />

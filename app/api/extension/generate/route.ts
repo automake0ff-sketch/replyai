@@ -48,9 +48,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let businessType: unknown, reviewText: unknown;
+  let businessType: unknown, reviewText: unknown, rating: unknown;
   try {
-    ({ businessType, reviewText } = await req.json());
+    ({ businessType, reviewText, rating } = await req.json());
   } catch {
     return NextResponse.json(
       { error: "Cuerpo de la petición inválido" },
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan, credits_remaining, business_name, brand_voice_notes")
+    .select("plan, credits_remaining, business_name, brand_voice_notes, auto_tone_positive")
     .eq("id", userId)
     .single();
 
@@ -107,15 +107,25 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Tono automático: si el usuario configuró un tono preferido en
+  // Ajustes Y la extensión detectó una puntuación de 4-5 estrellas en la
+  // reseña, se usa ese tono directamente sin más pasos. Esto NO publica
+  // solo — sigue requiriendo que el usuario le dé a "Generar" en la
+  // extensión y publique él mismo en Google.
+  const numericRating = typeof rating === "number" ? rating : null;
+  const useAutoTone = numericRating !== null && numericRating >= 4 && profile?.auto_tone_positive;
+
   // La extensión pide UNA respuesta lista para pegar (no las 5 del
-  // dashboard) — no hay sitio en la interfaz de Google para elegir tono.
+  // dashboard) — no hay sitio en la interfaz de Google para elegir tono,
+  // salvo que el tono automático de arriba aplique.
   let reply: string;
   try {
     reply = await generateDemoResponse(
       businessType,
       reviewText,
       profile?.business_name || undefined,
-      profile?.brand_voice_notes || undefined
+      profile?.brand_voice_notes || undefined,
+      useAutoTone ? profile!.auto_tone_positive! : undefined
     );
   } catch (err: any) {
     return NextResponse.json(

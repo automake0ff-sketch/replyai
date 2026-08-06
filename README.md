@@ -11,7 +11,7 @@ cp .env.example .env.local
 
 ### 1. Supabase
 1. Crea proyecto en supabase.com
-2. Ve a SQL Editor → pega y ejecuta, en orden: `0001_init.sql`, `0002_fix_profile_rls.sql`, `0003_demo_requests.sql`, `0004_harden_security_definer.sql`, `0005_update_business_name.sql`, `0006_api_tokens.sql`, `0007_brand_voice.sql` (o el `CONSOLIDADO_ejecutar_esto.sql`, aunque ese aún no incluye la 0007 — añádela aparte)
+2. Ve a SQL Editor → pega y ejecuta, en orden: `0001_init.sql`, `0002_fix_profile_rls.sql`, `0003_demo_requests.sql`, `0004_harden_security_definer.sql`, `0005_update_business_name.sql`, `0006_api_tokens.sql`, `0007_brand_voice.sql`, `0008_fix_pgcrypto_search_path.sql`, `0009_autotone_review_link.sql`
 3. Copia `Project URL`, `anon key` y `service_role key` a `.env.local`
 
 ### 2. OpenRouter

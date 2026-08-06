@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { UpgradeButton, ManageBillingButton } from "@/components/dashboard/PlanActions";
 import BusinessProfileForm from "@/components/dashboard/BusinessProfileForm";
 import ExtensionTokenPanel from "@/components/dashboard/ExtensionTokenPanel";
+import AutoToneSelector from "@/components/dashboard/AutoToneSelector";
+import ReviewCaptureCard from "@/components/dashboard/ReviewCaptureCard";
 
 export default async function SettingsPage() {
   const supabase = createClient();
@@ -11,7 +13,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan, email, stripe_customer_id, business_name, brand_voice_notes")
+    .select("plan, email, stripe_customer_id, business_name, brand_voice_notes, auto_tone_positive, review_link")
     .eq("id", user!.id)
     .single();
 
@@ -49,6 +51,26 @@ export default async function SettingsPage() {
           initialName={profile?.business_name || ""}
           initialBrandVoice={profile?.brand_voice_notes || ""}
         />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
+        <p className="font-body text-xs uppercase tracking-wide text-ink/40">
+          Tono automático para reseñas positivas
+        </p>
+        <p className="mt-1 font-body text-sm text-ink/60">
+          En la extensión de Chrome: si eliges un tono aquí, se usa directamente para reseñas de 4-5 estrellas sin que tengas que elegirlo cada vez. Sigues teniendo que darle a "Generar" y revisar antes de publicar — no publica solo.
+        </p>
+        <AutoToneSelector initialTone={profile?.auto_tone_positive || ""} />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
+        <p className="font-body text-xs uppercase tracking-wide text-ink/40">
+          Captación de reseñas
+        </p>
+        <p className="mt-1 font-body text-sm text-ink/60">
+          Genera un código QR con tu enlace de reseña de Google para imprimir en tu local o compartir por WhatsApp.
+        </p>
+        <ReviewCaptureCard initialLink={profile?.review_link || ""} />
       </div>
 
       <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
