@@ -28,7 +28,9 @@ export async function middleware(request: NextRequest) {
 
   const isAppRoute = request.nextUrl.pathname.startsWith("/dashboard") ||
     request.nextUrl.pathname.startsWith("/generator") ||
-    request.nextUrl.pathname.startsWith("/settings");
+    request.nextUrl.pathname.startsWith("/history") ||
+    request.nextUrl.pathname.startsWith("/settings") ||
+    request.nextUrl.pathname.startsWith("/onboarding");
 
   if (isAppRoute && !user) {
     const url = request.nextUrl.clone();
@@ -40,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/generator/:path*", "/settings/:path*"],
+  matcher: ["/dashboard/:path*", "/generator/:path*", "/history/:path*", "/settings/:path*", "/onboarding/:path*"],
 };

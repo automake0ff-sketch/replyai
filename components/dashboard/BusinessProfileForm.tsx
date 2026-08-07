@@ -3,16 +3,29 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const BUSINESS_TYPES = [
+  "Restaurante",
+  "Clínica dental",
+  "Inmobiliaria",
+  "Hotel",
+  "Taller",
+  "Peluquería",
+  "Otro",
+];
+
 export default function BusinessProfileForm({
   initialName,
   initialBrandVoice,
+  initialDefaultType,
 }: {
   initialName: string;
   initialBrandVoice: string;
+  initialDefaultType: string;
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
   const [brandVoice, setBrandVoice] = useState(initialBrandVoice);
+  const [defaultType, setDefaultType] = useState(initialDefaultType || BUSINESS_TYPES[0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -27,7 +40,11 @@ export default function BusinessProfileForm({
       const res = await fetch("/api/profile/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ businessName: name, brandVoiceNotes: brandVoice }),
+        body: JSON.stringify({
+          businessName: name,
+          brandVoiceNotes: brandVoice,
+          defaultBusinessType: defaultType,
+        }),
       });
       const data = await res.json();
 
@@ -48,6 +65,26 @@ export default function BusinessProfileForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-2 space-y-3">
+      <div>
+        <label className="mb-1 block font-body text-xs font-medium text-ink/50">
+          Tipo de negocio por defecto
+        </label>
+        <select
+          className="input-field"
+          value={defaultType}
+          onChange={(e) => setDefaultType(e.target.value)}
+        >
+          {BUSINESS_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 font-body text-xs text-ink/40">
+          Se preselecciona en el generador, para no elegirlo cada vez — sigues pudiendo cambiarlo puntualmente ahí.
+        </p>
+      </div>
+
       <div>
         <label className="mb-1 block font-body text-xs font-medium text-ink/50">
           Nombre del negocio

@@ -23,7 +23,7 @@ export default function SignupPage() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+      options: { emailRedirectTo: `${window.location.origin}/onboarding` },
     });
 
     if (error) {
@@ -41,7 +41,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/onboarding");
     router.refresh();
   }
 

@@ -13,7 +13,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan, email, stripe_customer_id, business_name, brand_voice_notes, auto_tone_positive, review_link")
+    .select("plan, email, stripe_customer_id, business_name, brand_voice_notes, auto_tone_positive, review_link, default_business_type")
     .eq("id", user!.id)
     .single();
 
@@ -50,6 +50,7 @@ export default async function SettingsPage() {
         <BusinessProfileForm
           initialName={profile?.business_name || ""}
           initialBrandVoice={profile?.brand_voice_notes || ""}
+          initialDefaultType={profile?.default_business_type || ""}
         />
       </div>
 
