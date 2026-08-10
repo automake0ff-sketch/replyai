@@ -173,6 +173,8 @@ export default function LandingPage() {
       <footer className="border-t border-ink/10 py-8 text-center font-body text-xs text-ink/40">
         <Link href="/blog" className="hover:text-ink/70">Blog</Link>
         <span className="mx-2">·</span>
+        <Link href="/privacy" className="hover:text-ink/70">Privacidad</Link>
+        <span className="mx-2">·</span>
         © {new Date().getFullYear()} ReplyAI
       </footer>
     </main>

@@ -28,6 +28,10 @@ const FAQS = {
       q: "¿Funciona con TripAdvisor, Yelp o Facebook, además de Google?",
       a: "Ahora mismo ReplyAI está enfocado en reseñas de Google, que es donde la mayoría de negocios locales reciben el grueso de su volumen. Integrar otras plataformas de reseñas es algo que valoramos para el futuro, pero no está disponible todavía.",
     },
+    {
+      q: "¿Cumple con el RGPD?",
+      a: "Tratamos tus datos conforme al RGPD: solo usamos lo necesario para prestar el servicio, no vendemos tus datos a terceros, y puedes ejercer tus derechos de acceso, rectificación y eliminación en cualquier momento. Todos los detalles — qué datos tratamos, con qué proveedores los compartimos (Supabase, OpenRouter, Stripe, Resend) y cómo ejercer tus derechos — están en nuestra Política de Privacidad, enlazada en el pie de página.",
+    },
   ],
   en: [
     {
@@ -57,6 +61,10 @@ const FAQS = {
     {
       q: "Does it work with TripAdvisor, Yelp, or Facebook, besides Google?",
       a: "Right now ReplyAI is focused on Google reviews, where most local businesses get the bulk of their volume. Supporting other review platforms is something we're considering for the future, but it's not available yet.",
+    },
+    {
+      q: "Is it GDPR compliant?",
+      a: "We handle your data in line with GDPR: we only use what's needed to run the service, we never sell your data, and you can exercise your access, rectification, and deletion rights at any time. Full details — what data we process, which providers we share it with (Supabase, OpenRouter, Stripe, Resend), and how to exercise your rights — are in our Privacy Policy, linked in the footer.",
     },
   ],
 };
