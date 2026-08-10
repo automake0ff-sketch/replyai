@@ -34,6 +34,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Instrucciones de marca inválidas (máx. 500 caracteres)" }, { status: 400 });
   }
 
+  // Voz de marca: función Pro/Agencia. En Free se puede dejar vacía
+  // (para no romper si ya no la usan) pero no se puede establecer un
+  // valor nuevo.
+  if (brandVoiceNotes.trim().length > 0) {
+    const { data: planCheck } = await supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .single();
+
+    if (planCheck?.plan !== "pro" && planCheck?.plan !== "agency") {
+      return NextResponse.json(
+        { error: "La voz de marca es una función de los planes Pro y Agencia." },
+        { status: 403 }
+      );
+    }
+  }
+
   // defaultBusinessType es opcional en el body: si no viene (ej. desde
   // el formulario de Ajustes, que no lo edita), se preserva el valor
   // actual en vez de borrarlo.

@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       businessType,
       reviewText,
       precheck?.business_name || undefined,
-      precheck?.brand_voice_notes || undefined
+      isUnlimited ? precheck?.brand_voice_notes || undefined : undefined
     );
   } catch (err: any) {
     return NextResponse.json(

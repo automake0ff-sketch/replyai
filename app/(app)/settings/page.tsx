@@ -20,6 +20,7 @@ export default async function SettingsPage() {
   const { data: hasToken } = await supabase.rpc("has_api_token");
 
   const plan = profile?.plan ?? "free";
+  const isPro = plan === "pro" || plan === "agency";
 
   return (
     <div className="max-w-xl">
@@ -45,12 +46,13 @@ export default async function SettingsPage() {
           Perfil del negocio
         </p>
         <p className="mt-1 font-body text-sm text-ink/60">
-          Se usa automáticamente en tus respuestas generadas — el nombre sobre todo en el tono SEO Local, y la voz de marca en todos los tonos.
+          Se usa automáticamente en tus respuestas generadas — el nombre sobre todo en el tono SEO Local. La voz de marca es una función Pro.
         </p>
         <BusinessProfileForm
           initialName={profile?.business_name || ""}
           initialBrandVoice={profile?.brand_voice_notes || ""}
           initialDefaultType={profile?.default_business_type || ""}
+          isPro={isPro}
         />
       </div>
 
@@ -76,12 +78,18 @@ export default async function SettingsPage() {
 
       <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
         <p className="font-body text-xs uppercase tracking-wide text-ink/40">
-          Extensión de Chrome
+          Extensión de Chrome <span className="text-clay">— Pro</span>
         </p>
         <p className="mt-1 font-body text-sm text-ink/60">
           Genera un token personal para conectar la extensión de ReplyAI y responder reseñas sin salir de Google Business Profile.
         </p>
-        <ExtensionTokenPanel hasToken={!!hasToken} />
+        {isPro ? (
+          <ExtensionTokenPanel hasToken={!!hasToken} />
+        ) : (
+          <div className="mt-3">
+            <UpgradeButton plan="pro" label="Desbloquear con Pro — 19€/mes" />
+          </div>
+        )}
       </div>
     </div>
   );

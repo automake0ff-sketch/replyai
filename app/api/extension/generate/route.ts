@@ -100,10 +100,13 @@ export async function POST(req: NextRequest) {
 
   const isUnlimited = profile?.plan === "pro" || profile?.plan === "agency";
 
-  if (!isUnlimited && (profile?.credits_remaining ?? 0) <= 0) {
+  // La extensión es una función Pro/Agencia: si el token se generó
+  // estando en Pro y luego se bajó a Free, deja de funcionar aquí,
+  // aunque el token en sí siga siendo técnicamente válido.
+  if (!isUnlimited) {
     return NextResponse.json(
-      { error: "Sin créditos disponibles. Actualiza tu plan en ReplyAI." },
-      { status: 402, headers: corsHeaders() }
+      { error: "La extensión de Chrome es una función de los planes Pro y Agencia." },
+      { status: 403, headers: corsHeaders() }
     );
   }
 

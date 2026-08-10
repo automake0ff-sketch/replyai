@@ -26,7 +26,8 @@ export async function GET(req: NextRequest) {
 
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
-    .select("id, email, business_name");
+    .select("id, email, business_name, plan")
+    .in("plan", ["pro", "agency"]);
 
   if (profilesError) {
     return NextResponse.json({ error: profilesError.message }, { status: 500 });

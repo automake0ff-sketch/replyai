@@ -17,10 +17,12 @@ export default function BusinessProfileForm({
   initialName,
   initialBrandVoice,
   initialDefaultType,
+  isPro,
 }: {
   initialName: string;
   initialBrandVoice: string;
   initialDefaultType: string;
+  isPro: boolean;
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
@@ -42,7 +44,7 @@ export default function BusinessProfileForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           businessName: name,
-          brandVoiceNotes: brandVoice,
+          brandVoiceNotes: isPro ? brandVoice : "",
           defaultBusinessType: defaultType,
         }),
       });
@@ -101,17 +103,18 @@ export default function BusinessProfileForm({
 
       <div>
         <label className="mb-1 block font-body text-xs font-medium text-ink/50">
-          Voz de marca (opcional)
+          Voz de marca {!isPro && <span className="text-clay">— Pro</span>}
         </label>
         <textarea
           rows={3}
           maxLength={500}
-          placeholder="Ej: firma siempre como 'Ana', nunca menciones descuentos, tono desenfadado y cercano"
-          className="input-field resize-none"
-          value={brandVoice}
+          disabled={!isPro}
+          placeholder={isPro ? "Ej: firma siempre como 'Ana', nunca menciones descuentos, tono desenfadado y cercano" : "Disponible en el plan Pro"}
+          className="input-field resize-none disabled:cursor-not-allowed disabled:bg-ink/5 disabled:text-ink/40"
+          value={isPro ? brandVoice : ""}
           onChange={(e) => setBrandVoice(e.target.value)}
         />
-        <p className="mt-1 text-right font-body text-xs text-ink/40">{brandVoice.length}/500</p>
+        {isPro && <p className="mt-1 text-right font-body text-xs text-ink/40">{brandVoice.length}/500</p>}
       </div>
 
       <div className="flex items-center gap-3">
