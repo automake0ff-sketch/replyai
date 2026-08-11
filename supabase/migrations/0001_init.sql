@@ -6,8 +6,8 @@ create table if not exists profiles (
   business_name text,
   business_type text,
   plan text not null default 'free' check (plan in ('free','pro','agency')),
-  credits_remaining int not null default 20,
-  credits_limit int not null default 20,
+  credits_remaining int not null default 15,
+  credits_limit int not null default 15,
   stripe_customer_id text,
   stripe_subscription_id text,
   created_at timestamptz default now()

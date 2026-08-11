@@ -128,7 +128,7 @@ export default function LandingPage() {
           <div className="rounded-2xl border border-ink/10 bg-white p-8 shadow-card">
             <h3 className="font-display text-2xl">Free</h3>
             <p className="mt-2 font-display text-4xl">0€</p>
-            <p className="font-body text-sm text-ink/50">20 respuestas al mes</p>
+            <p className="font-body text-sm text-ink/50">15 respuestas al mes</p>
             <ul className="mt-6 space-y-2 font-body text-sm text-ink/70">
               <li>✓ 5 tonos por reseña</li>
               <li>✓ Todos los tipos de negocio</li>

@@ -7,7 +7,7 @@ import { sendLowCreditsWarning } from "@/lib/email";
 // A este nº de créditos restantes se manda el aviso — una sola vez,
 // porque solo se dispara al cruzar exactamente este valor tras
 // descontar (no cada vez que el usuario está por debajo).
-const LOW_CREDITS_THRESHOLD = 5;
+const LOW_CREDITS_THRESHOLD = 3;
 
 export async function POST(req: NextRequest) {
   if (!isSameOrigin(req)) {
