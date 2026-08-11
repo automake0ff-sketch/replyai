@@ -177,6 +177,8 @@ export default function LandingPage() {
         <span className="mx-2">·</span>
         <Link href="/privacy" className="hover:text-ink/70">Privacidad</Link>
         <span className="mx-2">·</span>
+        <Link href="/terms" className="hover:text-ink/70">Términos</Link>
+        <span className="mx-2">·</span>
         © {new Date().getFullYear()} ReplyAI
       </footer>
     </main>
