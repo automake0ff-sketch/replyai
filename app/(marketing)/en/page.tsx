@@ -6,6 +6,7 @@ import FounderGuarantee from "@/components/marketing/FounderGuarantee";
 import FaqSection from "@/components/marketing/FaqSection";
 import RoadmapTeaser from "@/components/marketing/RoadmapTeaser";
 import PricingTable from "@/components/marketing/PricingTable";
+import LaunchBanner from "@/components/marketing/LaunchBanner";
 
 export const metadata: Metadata = {
   title: "ReplyAI — Reply to Google reviews in seconds",
@@ -25,6 +26,7 @@ const BUSINESS_TYPES = [
 export default function LandingPageEN() {
   return (
     <main className="min-h-screen bg-paper text-ink">
+      <LaunchBanner locale="en" />
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <span className="font-display text-xl italic">ReplyAI</span>

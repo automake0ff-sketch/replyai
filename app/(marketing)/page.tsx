@@ -5,6 +5,7 @@ import FounderGuarantee from "@/components/marketing/FounderGuarantee";
 import FaqSection from "@/components/marketing/FaqSection";
 import RoadmapTeaser from "@/components/marketing/RoadmapTeaser";
 import PricingTable from "@/components/marketing/PricingTable";
+import LaunchBanner from "@/components/marketing/LaunchBanner";
 
 const BUSINESS_TYPES = [
   "Restaurantes",
@@ -18,6 +19,7 @@ const BUSINESS_TYPES = [
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-paper text-ink">
+      <LaunchBanner locale="es" />
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <span className="font-display text-xl italic">ReplyAI</span>

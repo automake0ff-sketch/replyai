@@ -66,6 +66,12 @@ export async function POST(req: NextRequest) {
       success_url: `${appUrl}/dashboard?checkout=success`,
       cancel_url: `${appUrl}/settings`,
       metadata: { supabase_user_id: user.id, plan },
+      // Muestra un campo de código promocional en la propia página de
+      // pago de Stripe. El código y su límite de canjes (ej. 50) se
+      // configuran en Stripe Dashboard → Cupones — no hace falta tocar
+      // este código para cambiarlos ni para que dejen de funcionar
+      // cuando se agoten.
+      allow_promotion_codes: true,
     });
 
     return NextResponse.json({ url: session.url });
