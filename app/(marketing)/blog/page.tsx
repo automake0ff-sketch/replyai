@@ -22,6 +22,11 @@ const POSTS = [
     title: "5 errores comunes al responder reseñas negativas (y cómo evitarlos)",
     excerpt: "Desde ponerse a la defensiva hasta copiar la misma plantilla siempre — los fallos más habituales, y qué hacer en su lugar.",
   },
+  {
+    slug: "replyai-vs-reply-champion-vs-replifast",
+    title: "ReplyAI vs Reply Champion vs RepliFast: comparativa honesta",
+    excerpt: "Escrita por el fundador de ReplyAI, con el mismo sesgo evidente que cualquier comparativa de un fundador — pero con los datos verificados.",
+  },
 ];
 
 export default function BlogIndexPage() {
