@@ -6,6 +6,7 @@ import FaqSection from "@/components/marketing/FaqSection";
 import RoadmapTeaser from "@/components/marketing/RoadmapTeaser";
 import PricingTable from "@/components/marketing/PricingTable";
 import LaunchBanner from "@/components/marketing/LaunchBanner";
+import ProductHuntBadge from "@/components/marketing/ProductHuntBadge";
 
 const BUSINESS_TYPES = [
   "Restaurantes",
@@ -38,6 +39,9 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 pb-20 pt-16 text-center">
+        <div className="mb-6 flex justify-center">
+          <ProductHuntBadge url="https://www.producthunt.com/posts/replyai" />
+        </div>
         <p className="mb-5 font-body text-sm uppercase tracking-[0.2em] text-clay">
           Reputación local · Impulsada por IA
         </p>

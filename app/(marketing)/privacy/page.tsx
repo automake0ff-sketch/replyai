@@ -65,7 +65,7 @@ export default function PrivacyPage() {
             <li><strong>OpenRouter</strong> y los proveedores de modelos de IA a los que enruta la petición — para generar el texto de las respuestas. El texto de tu reseña se envía a estos proveedores en el momento de generar una respuesta; algunos pueden estar ubicados fuera del Espacio Económico Europeo.</li>
             <li><strong>Stripe</strong> — procesamiento de pagos.</li>
             <li><strong>Resend</strong> — envío de emails transaccionales (confirmación, avisos, informe mensual).</li>
-            <li><strong>Vercel</strong> — alojamiento de la aplicación.</li>
+            <li><strong>Vercel</strong> — alojamiento de la aplicación, y analítica de uso agregada (páginas visitadas, sin cookies ni identificación individual).</li>
           </ul>
 
           <h2>5. Cuánto tiempo conservamos tus datos</h2>
@@ -86,11 +86,14 @@ export default function PrivacyPage() {
             consideras que no hemos atendido tu solicitud correctamente.
           </p>
 
-          <h2>7. Cookies</h2>
+          <h2>7. Cookies y analítica</h2>
           <p>
             Usamos únicamente una cookie técnica de sesión, necesaria para
             mantenerte identificado tras iniciar sesión. No usamos cookies de
-            publicidad ni de seguimiento analítico de terceros.
+            publicidad ni de seguimiento de terceros. Para medir el uso
+            agregado del sitio (qué páginas se visitan, cuánto tráfico
+            recibimos) usamos Vercel Analytics, que no instala cookies ni
+            identifica visitantes de forma individual.
           </p>
 
           <h2>8. Cambios en esta política</h2>
