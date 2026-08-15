@@ -91,8 +91,8 @@ export default function SignupPage() {
           <input
             type="password"
             required
-            minLength={6}
-            placeholder="Contraseña (mín. 6 caracteres)"
+            minLength={8}
+            placeholder="Contraseña (mín. 8 caracteres)"
             className="input-field"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

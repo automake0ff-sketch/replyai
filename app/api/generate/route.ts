@@ -128,12 +128,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { error: insertError } = await supabase.from("generations").insert({
-    user_id: user.id,
-    business_type: businessType,
-    review_text: reviewText,
-    review_sentiment: responses.sentiment,
-    responses,
+  // Vía RPC en vez de insert directo: la policy de `generations` ya no
+  // permite insert desde el rol authenticated (ver migración 0012), así
+  // que esta llamada además de guardar el historial actúa como defensa
+  // en profundidad — valida tamaños en la propia base de datos, no solo
+  // aquí en la API route.
+  const { error: insertError } = await supabase.rpc("insert_own_generation", {
+    p_business_type: businessType,
+    p_review_text: reviewText,
+    p_review_sentiment: responses.sentiment,
+    p_responses: responses,
   });
 
   if (insertError) {
