@@ -47,7 +47,7 @@ export default function LandingPageEN() {
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 pb-20 pt-16 text-center">
         <div className="mb-6 flex justify-center">
-          <ProductHuntBadge url="https://www.producthunt.com/posts/replyai" />
+          <ProductHuntBadge url="https://www.producthunt.com/products/reply-ai-4?launch=reply-ai-4" />
         </div>
         <p className="mb-5 font-body text-sm uppercase tracking-[0.2em] text-clay">
           Local reputation · Powered by AI
