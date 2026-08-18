@@ -18,6 +18,11 @@ function extractTag(text: string, tag: string): string | undefined {
   return match?.[1]?.trim();
 }
 
+// Exportado solo bajo este alias para tests unitarios (lib/openrouter.test.ts).
+// No es parte de la API pública del módulo — el resto del código sigue
+// usando la función sin exportar de más superficie de la necesaria.
+export { parseTaggedResponses as __test__parseTaggedResponses };
+
 function parseTaggedResponses(text: string): GeneratedResponses {
   const professional = extractTag(text, "PROFESSIONAL");
   const friendly = extractTag(text, "FRIENDLY");
