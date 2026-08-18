@@ -1,6 +1,6 @@
 const ROWS = {
   es: [
-    { label: "Respuestas al mes", free: "15", pro: "Ilimitadas" },
+    { label: "Respuestas al mes", free: "5", pro: "Ilimitadas" },
     { label: "Los 5 tonos por reseña", free: "✓", pro: "✓" },
     { label: "Todos los tipos de negocio", free: "✓", pro: "✓" },
     { label: "Detección automática de idioma", free: "✓", pro: "✓" },
@@ -11,7 +11,7 @@ const ROWS = {
     { label: "Soporte", free: "Comunidad", pro: "Prioritario" },
   ],
   en: [
-    { label: "Replies per month", free: "15", pro: "Unlimited" },
+    { label: "Replies per month", free: "5", pro: "Unlimited" },
     { label: "All 5 tones per review", free: "✓", pro: "✓" },
     { label: "Every business type", free: "✓", pro: "✓" },
     { label: "Automatic language detection", free: "✓", pro: "✓" },

@@ -23,7 +23,7 @@ export default function Article() {
 
       <h2>Precio</h2>
       <ul>
-        <li><strong>ReplyAI</strong>: gratis (15 respuestas/mes) o 19€/mes (Pro, ilimitado).</li>
+        <li><strong>ReplyAI</strong>: gratis (5 respuestas/mes) o 19€/mes (Pro, ilimitado).</li>
         <li><strong>Reply Champion</strong>: desde 10$/mes, sin permanencia, con prueba gratuita.</li>
         <li><strong>RepliFast</strong>: prueba Pro de 14 días sin tarjeta, con garantía de devolución de 30 días tras la compra.</li>
       </ul>

@@ -66,7 +66,7 @@ export default function SignupPage() {
         <Link href="/" className="font-display text-xl italic">ReplyAI</Link>
         <h1 className="mt-8 font-display text-3xl">Crea tu cuenta</h1>
         <p className="mt-2 font-body text-sm text-ink/60">
-          15 respuestas gratis al mes. Sin tarjeta.
+          5 respuestas gratis al mes. Sin tarjeta.
         </p>
 
         <div className="mt-6">
