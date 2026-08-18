@@ -18,7 +18,7 @@ const FAQS = {
     },
     {
       q: "¿Necesito tarjeta para probarlo?",
-      a: "No. El plan Free incluye 15 respuestas al mes sin pedir tarjeta.",
+      a: "No. El plan Free incluye 5 respuestas al mes sin pedir tarjeta.",
     },
     {
       q: "¿Puedo personalizar el tono de las respuestas?",
@@ -52,7 +52,7 @@ const FAQS = {
     },
     {
       q: "Do I need a card to try it?",
-      a: "No. The Free plan includes 15 replies per month, no card required.",
+      a: "No. The Free plan includes 5 replies per month, no card required.",
     },
     {
       q: "Can I customize the tone of the replies?",

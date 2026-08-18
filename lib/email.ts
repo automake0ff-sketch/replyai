@@ -62,7 +62,7 @@ function renderLowCreditsHtml(creditsRemaining: number) {
     <p style="font-size: 20px; font-style: italic; margin: 0 0 24px;">ReplyAI</p>
     <h1 style="font-size: 22px; margin: 0 0 8px;">Te quedan ${creditsRemaining} respuestas este mes</h1>
     <p style="font-size: 14px; color: #14110F99; line-height: 1.6; margin: 12px 0 24px;">
-      Tu plan Free incluye 15 respuestas al mes. Cuando se agoten, tendrás
+      Tu plan Free incluye 5 respuestas al mes. Cuando se agoten, tendrás
       que esperar al reset del mes que viene — o pasarte a Pro para
       respuestas ilimitadas desde ya.
     </p>
