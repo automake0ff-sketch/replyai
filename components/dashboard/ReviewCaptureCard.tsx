@@ -10,6 +10,19 @@ export default function ReviewCaptureCard({ initialLink }: { initialLink: string
   const [error, setError] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Web NFC (NDEFReader) solo está disponible en Chrome/Samsung Internet
+  // sobre Android, con HTTPS y con un tap del usuario — no existe en
+  // iOS/Safari ni en ningún navegador de escritorio. Por eso se detecta
+  // la capacidad en tiempo real y se explica la limitación en vez de
+  // mostrar un botón que no va a funcionar para la mayoría.
+  const [nfcSupported, setNfcSupported] = useState(false);
+  const [nfcStatus, setNfcStatus] = useState<"idle" | "writing" | "success" | "error">("idle");
+  const [nfcError, setNfcError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNfcSupported(typeof window !== "undefined" && "NDEFReader" in window);
+  }, []);
+
   useEffect(() => {
     if (link && canvasRef.current) {
       QRCode.toCanvas(canvasRef.current, link, {
@@ -52,6 +65,27 @@ export default function ReviewCaptureCard({ initialLink }: { initialLink: string
     a.click();
   }
 
+  async function writeNfcTag() {
+    if (!link) return;
+    setNfcStatus("writing");
+    setNfcError(null);
+    try {
+      // @ts-expect-error: NDEFReader no está en los tipos estándar de TS/DOM todavía
+      const ndef = new window.NDEFReader();
+      await ndef.write({ records: [{ recordType: "url", data: link }] });
+      setNfcStatus("success");
+      setTimeout(() => setNfcStatus("idle"), 2500);
+    } catch (err) {
+      setNfcStatus("error");
+      const message = err instanceof Error ? err.message : "";
+      setNfcError(
+        message.toLowerCase().includes("not allowed") || message.toLowerCase().includes("permission")
+          ? "Permiso de NFC denegado. Actívalo en los ajustes del navegador e inténtalo de nuevo."
+          : "No se pudo escribir en la tarjeta. Acércala al móvil y vuelve a intentarlo."
+      );
+    }
+  }
+
   return (
     <div className="mt-2 space-y-4">
       <div>
@@ -87,6 +121,36 @@ export default function ReviewCaptureCard({ initialLink }: { initialLink: string
           <button onClick={downloadQr} className="mt-3 font-body text-xs font-medium text-clay hover:underline">
             Descargar QR
           </button>
+
+          <div className="mt-4 border-t border-ink/10 pt-4">
+            <p className="mb-2 font-body text-xs font-medium text-ink/60">Tarjeta NFC (opcional, además del QR)</p>
+
+            {nfcSupported ? (
+              <>
+                <button
+                  onClick={writeNfcTag}
+                  disabled={nfcStatus === "writing"}
+                  className="btn-secondary"
+                >
+                  {nfcStatus === "writing"
+                    ? "Acerca la tarjeta al móvil..."
+                    : nfcStatus === "success"
+                    ? "Tarjeta grabada ✓"
+                    : "Grabar tarjeta NFC"}
+                </button>
+                {nfcStatus === "error" && nfcError && (
+                  <p className="mt-2 font-body text-xs text-red-600">{nfcError}</p>
+                )}
+                <p className="mt-2 font-body text-xs text-ink/40">
+                  Necesitas una tarjeta o pegatina NFC en blanco (tipo NTAG213/215, se compran sueltas online) y acercarla a la parte trasera del móvil cuando lo pida.
+                </p>
+              </>
+            ) : (
+              <p className="font-body text-xs text-ink/40">
+                Grabar tarjetas NFC desde el navegador solo funciona en Chrome o Samsung Internet sobre Android — no está disponible en iPhone ni en ordenador. Descarga el QR de arriba, que funciona en cualquier dispositivo, o usa una app de grabación NFC gratuita desde un móvil Android compatible para escribir este mismo enlace en la tarjeta.
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>
