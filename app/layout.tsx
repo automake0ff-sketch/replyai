@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Fraunces, Public_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
@@ -30,11 +31,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Leer headers() aquí es lo que obliga a renderizar dinámicamente (por
+  // request) en vez de servir HTML estático pre-generado en el build. Es
+  // necesario para que el nonce que pone el middleware en la CSP coincida
+  // con el que Next.js graba en sus propios <script> de hidratación — si
+  // esta página se sirve como estática (PRERENDER), esos scripts se
+  // graban en build time sin nonce y el navegador los bloquea siempre,
+  // aunque el header CSP del request tenga uno válido.
+  await headers();
+
   return (
     <html lang="es" className={`${fraunces.variable} ${publicSans.variable}`}>
       <body className="font-body">
