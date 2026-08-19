@@ -30,6 +30,12 @@ export default async function AppLayout({
             <Link href="/history" className="rounded-lg px-3 py-2 font-body text-sm text-ink/70 hover:bg-ink/5">
               Historial
             </Link>
+            <Link href="/negocio" className="rounded-lg px-3 py-2 font-body text-sm text-ink/70 hover:bg-ink/5">
+              Negocio
+            </Link>
+            <Link href="/herramientas" className="rounded-lg px-3 py-2 font-body text-sm text-ink/70 hover:bg-ink/5">
+              Herramientas
+            </Link>
             <Link href="/settings" className="rounded-lg px-3 py-2 font-body text-sm text-ink/70 hover:bg-ink/5">
               Ajustes
             </Link>

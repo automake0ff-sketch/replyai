@@ -119,6 +119,35 @@ export default function LandingPage() {
       {/* Antes / Después */}
       <BeforeAfter locale="es" />
 
+      {/* Herramientas: lo que hace tangible el producto más allá de generar texto */}
+      <section className="mx-auto max-w-5xl px-6 py-16">
+        <h2 className="text-center font-display text-4xl">Más que generar texto</h2>
+        <p className="mx-auto mt-3 max-w-xl text-center font-body text-ink/60">
+          Herramientas para conseguir reseñas y publicar respuestas sin salir de donde estás.
+        </p>
+        <div className="mt-12 grid gap-8 sm:grid-cols-3">
+          {[
+            {
+              title: "Tarjeta para tu mesa",
+              text: "Diseño con QR + NFC listo para imprimir y poner en un soporte de mesa, con el nombre de tu negocio.",
+            },
+            {
+              title: "Extensión de Chrome",
+              text: "Genera y copia la respuesta sin salir de Google Business Profile — Pro.",
+            },
+            {
+              title: "Publicación directa",
+              text: "Conecta tu ficha de Google y publica sin copiar y pegar — próximamente, Pro.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="rounded-2xl border border-ink/10 bg-white p-7 shadow-card">
+              <h3 className="font-display text-2xl">{item.title}</h3>
+              <p className="mt-2 font-body text-sm text-ink/60">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Garantía del fundador (honesta: sin testimonios inventados) */}
       <FounderGuarantee locale="es" />
 
@@ -152,6 +181,8 @@ export default function LandingPage() {
             <ul className="mt-6 space-y-2 font-body text-sm text-ink/70">
               <li>✓ Todo lo de Free</li>
               <li>✓ Respuestas ilimitadas</li>
+              <li>✓ Extensión de Chrome</li>
+              <li>✓ Tarjeta QR/NFC para captar reseñas</li>
               <li>✓ Soporte prioritario</li>
             </ul>
             <Link href="/signup" className="btn-primary mt-8 w-full">

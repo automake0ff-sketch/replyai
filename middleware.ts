@@ -56,6 +56,8 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/generator") ||
     request.nextUrl.pathname.startsWith("/history") ||
     request.nextUrl.pathname.startsWith("/settings") ||
+    request.nextUrl.pathname.startsWith("/negocio") ||
+    request.nextUrl.pathname.startsWith("/herramientas") ||
     request.nextUrl.pathname.startsWith("/onboarding") ||
     request.nextUrl.pathname.startsWith("/admin");
 

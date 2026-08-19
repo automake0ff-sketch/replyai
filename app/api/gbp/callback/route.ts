@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const state = req.nextUrl.searchParams.get("state");
   const expectedState = req.cookies.get("gbp_oauth_state")?.value;
-  const settingsUrl = new URL("/settings", req.nextUrl.origin);
+  const settingsUrl = new URL("/herramientas", req.nextUrl.origin);
 
   if (!code || !state || !expectedState || state !== expectedState) {
     settingsUrl.searchParams.set("gbp_error", "invalid_state");

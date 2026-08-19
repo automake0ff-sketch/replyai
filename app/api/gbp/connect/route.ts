@@ -9,7 +9,7 @@ import { buildGoogleAuthUrl, isGbpConfigured } from "@/lib/google-business";
 export async function GET(req: NextRequest) {
   if (!isGbpConfigured()) {
     return NextResponse.redirect(
-      new URL("/settings?gbp_error=not_configured", req.nextUrl.origin)
+      new URL("/herramientas?gbp_error=not_configured", req.nextUrl.origin)
     );
   }
 
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
   const { data: profile } = await supabase.from("profiles").select("plan").eq("id", user.id).single();
   if (profile?.plan !== "pro" && profile?.plan !== "agency") {
-    return NextResponse.redirect(new URL("/settings?gbp_error=requires_pro", req.nextUrl.origin));
+    return NextResponse.redirect(new URL("/herramientas?gbp_error=requires_pro", req.nextUrl.origin));
   }
 
   // state protege el callback frente a CSRF en el propio flujo OAuth

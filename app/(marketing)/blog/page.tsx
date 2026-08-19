@@ -27,6 +27,21 @@ const POSTS = [
     title: "ReplyAI vs Reply Champion vs RepliFast: comparativa honesta",
     excerpt: "Escrita por el fundador de ReplyAI, con el mismo sesgo evidente que cualquier comparativa de un fundador — pero con los datos verificados.",
   },
+  {
+    slug: "como-conseguir-mas-resenas-google",
+    title: "Cómo conseguir más reseñas de Google para tu negocio",
+    excerpt: "El truco no es pedir reseñas mejor, es pedirlas en el momento correcto y quitar toda la fricción posible.",
+  },
+  {
+    slug: "plantillas-respuestas-resenas-google",
+    title: "Plantillas de respuestas a reseñas de Google gratis",
+    excerpt: "Listas para copiar y adaptar, positivas y negativas — con la advertencia de por qué copiarlas tal cual no es tan buena idea como parece.",
+  },
+  {
+    slug: "como-responder-resenas-restaurantes",
+    title: "Cómo responder reseñas de Google para restaurantes",
+    excerpt: "Las quejas de un restaurante se repiten siempre: tiempo de espera, temperatura del plato, ruido, precio. Cómo responder a cada una.",
+  },
 ];
 
 export default function BlogIndexPage() {
