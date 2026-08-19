@@ -89,7 +89,7 @@ export default function Article() {
         anima a que el siguiente cliente también se moleste en dejar la
         suya. Un perfil con reseñas sin respuesta se siente abandonado, y
         nadie quiere ser el primero en hablarle a un negocio que no
-        contesta.
+        contesta — aquí tienes cómo <a href="/blog/como-responder-resena-negativa-google">responder bien a una reseña negativa</a> y qué <a href="/blog/errores-responder-resenas-negativas">errores evitar</a>.
       </p>
 
       <h2>La combinación que funciona</h2>

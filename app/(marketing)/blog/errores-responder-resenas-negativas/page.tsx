@@ -91,7 +91,8 @@ export default function Article() {
         solución no es "tener más cuidado" en abstracto — es tener una
         forma de generar respuestas cuidadas sin que cada una te cueste
         diez minutos de reflexión. Eso es, literalmente, para lo que existe
-        ReplyAI.
+        ReplyAI. Si quieres la guía completa paso a paso, la tienes en
+        <a href="/blog/como-responder-resena-negativa-google"> cómo responder a una reseña negativa</a>.
       </p>
     </ArticleLayout>
   );

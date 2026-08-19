@@ -88,7 +88,8 @@ export default function Article() {
         el tono "SEO Local" de ReplyAI — respuestas que integran tu nombre
         y zona de forma natural, generadas en segundos, para que la
         constancia deje de depender de que tengas un rato libre esa
-        semana.
+        semana. Y si el problema es que aún te faltan reseñas que
+        responder, tenemos también una guía sobre <a href="/blog/como-conseguir-mas-resenas-google">cómo conseguir más reseñas de Google</a>.
       </p>
     </ArticleLayout>
   );

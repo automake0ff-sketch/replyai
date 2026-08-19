@@ -97,7 +97,8 @@ export default function Article() {
         Escribir esto bien, reseña tras reseña, cuesta tiempo — que es
         exactamente el problema que resuelve una herramienta como ReplyAI:
         generar la respuesta correcta en segundos, sin que tengas que
-        pensarla desde cero cada vez.
+        pensarla desde cero cada vez. Si prefieres partir de una base
+        escrita, tenemos también <a href="/blog/plantillas-respuestas-resenas-google">plantillas gratis</a> que puedes adaptar.
       </p>
     </ArticleLayout>
   );
