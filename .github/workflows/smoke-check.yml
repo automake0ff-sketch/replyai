@@ -1,0 +1,21 @@
+name: Smoke check producción
+
+on:
+  schedule:
+    # Cada 30 min. Si /login se rompe (login bloqueado, CSP mal, Vercel
+    # Authentication reactivada por error...) te enteras en minutos, no
+    # en 3 días como esta semana.
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+jobs:
+  smoke-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Esperar a que Vercel termine el deploy
+        if: github.event_name == 'push'
+        run: sleep 60
+      - run: node scripts/smoke-check.mjs
