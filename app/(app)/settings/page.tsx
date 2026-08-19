@@ -121,7 +121,7 @@ export default async function SettingsPage({
         <p className="mt-1 font-body text-sm text-ink/60">
           Genera un código QR con tu enlace de reseña de Google para imprimir en tu local o compartir por WhatsApp.
         </p>
-        <ReviewCaptureCard initialLink={profile?.review_link || ""} />
+        <ReviewCaptureCard initialLink={profile?.review_link || ""} businessName={profile?.business_name || ""} />
       </div>
 
       <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
